@@ -11,7 +11,6 @@
   const forms = {
     login: document.getElementById("form-login"),
     register: document.getElementById("form-register"),
-    reset: document.getElementById("form-reset"),
   };
   tabs.forEach(t => t.addEventListener("click", () => {
     tabs.forEach(x => x.classList.remove("active"));
@@ -33,7 +32,7 @@
   });
 
   function clearMessages() {
-    ["login-msg", "register-msg", "reset-msg"].forEach(id => {
+    ["login-msg", "register-msg"].forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.textContent = ""; el.className = "form-msg"; }
     });
@@ -125,39 +124,4 @@
     showPendingContact(true);
   });
 
-  // ---- Recuperación de contraseña ----
-  const sendBtn = document.getElementById("send-code");
-  const confirmBtn = document.getElementById("confirm-reset");
-  const step1 = forms.reset.querySelector('[data-step="1"]');
-  const step2 = forms.reset.querySelector('[data-step="2"]');
-  const demoCode = document.getElementById("demo-code");
-  let resetCtx = null;
-
-  sendBtn.addEventListener("click", () => {
-    const ident = forms.reset.querySelector('[name="identifier"]').value.trim();
-    if (!ident) return setMsg("reset-msg", "Ingresa tu usuario o correo.", "error");
-    const res = Auth.generateResetCode(ident);
-    if (!res.ok) return setMsg("reset-msg", res.error, "error");
-    resetCtx = { userId: res.userId };
-    demoCode.textContent = res.code;
-    step1.hidden = true;
-    step2.hidden = false;
-    setMsg("reset-msg", `Código enviado a ${res.email}.`, "ok");
-  });
-
-  confirmBtn.addEventListener("click", () => {
-    if (!resetCtx) return;
-    const code = forms.reset.querySelector('[name="code"]').value.trim();
-    const newPass = forms.reset.querySelector('[name="newPass"]').value;
-    const res = Auth.resetPassword(resetCtx.userId, code, newPass);
-    if (!res.ok) return setMsg("reset-msg", res.error, "error");
-    setMsg("reset-msg", "Contraseña restablecida. Ya puedes iniciar sesión.", "ok");
-    setTimeout(() => {
-      document.querySelector('.tab[data-tab="login"]').click();
-      forms.reset.reset();
-      step1.hidden = false;
-      step2.hidden = true;
-      resetCtx = null;
-    }, 1200);
-  });
 })();

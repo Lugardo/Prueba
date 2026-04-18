@@ -40,7 +40,6 @@
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="login" role="tab">Iniciar sesión</button>
         <button class="tab" data-tab="register" role="tab">Registrarse</button>
-        <button class="tab" data-tab="reset" role="tab">Recuperar</button>
       </nav>
 
       <form class="form active" id="form-login" autocomplete="off">
@@ -57,7 +56,7 @@
         </label>
         <button class="btn-primary" type="submit">Despegar</button>
         <p class="form-msg" id="login-msg"></p>
-        <p class="hint">¿Primer viaje? Usa "Registrarse". ¿Perdiste la clave? Usa "Recuperar".</p>
+        <p class="hint">¿Primer viaje? Usa "Registrarse".</p>
       </form>
 
       <form class="form" id="form-register" autocomplete="off">
@@ -91,32 +90,6 @@
         <p class="form-msg" id="register-msg"></p>
       </form>
 
-      <form class="form" id="form-reset" autocomplete="off">
-        <div class="reset-step" data-step="1">
-          <label>
-            <span>Usuario o correo</span>
-            <input type="text" name="identifier" required placeholder="Tu usuario o correo" />
-          </label>
-          <button class="btn-primary" type="button" id="send-code">Enviar código</button>
-          <p class="form-msg" id="reset-msg"></p>
-        </div>
-        <div class="reset-step" data-step="2" hidden>
-          <p class="hint">Hemos generado un código de 6 dígitos. En producción se enviaría al correo; aquí se muestra en pantalla por fines de demostración.</p>
-          <p class="demo-code" id="demo-code"></p>
-          <label>
-            <span>Código de verificación</span>
-            <input type="text" name="code" maxlength="6" placeholder="000000" />
-          </label>
-          <label>
-            <span>Nueva contraseña</span>
-            <div class="password-wrap">
-              <input type="password" name="newPass" minlength="6" placeholder="Nueva contraseña" />
-              <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
-            </div>
-          </label>
-          <button class="btn-primary" type="button" id="confirm-reset">Restablecer contraseña</button>
-        </div>
-      </form>
       </div>
 
       <div class="auth-view" id="view-contact" hidden>

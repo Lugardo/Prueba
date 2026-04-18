@@ -82,10 +82,10 @@
             <input name="name" required placeholder="Ej. Calibrar telescopio" />
           </label>
           <div class="grid-3">
-            <label><span>Hora de inicio</span>
+            <label><span>Hora de inicio <em class="req">*</em></span>
               <input type="text" class="time-field" name="start" id="start-input" required readonly placeholder="--:--" />
             </label>
-            <label><span>Hora de fin</span>
+            <label><span>Hora de fin <em class="req">*</em></span>
               <input type="text" class="time-field" name="end" id="end-input" required readonly placeholder="--:--" />
             </label>
             <label><span>Tiempo (HH:MM)</span>
@@ -121,23 +121,32 @@
     document.getElementById("task-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
+      const start = String(fd.get("start") || "").trim();
+      const end   = String(fd.get("end") || "").trim();
+      const hint = document.getElementById("time-hint");
+      if (!start || !end) {
+        hint.textContent = "⚠️ Debes seleccionar la hora de inicio y la hora de fin.";
+        hint.classList.add("error");
+        (!start ? document.getElementById("start-input") : document.getElementById("end-input")).focus();
+        return;
+      }
       const time = String(fd.get("time") || "").trim();
       if (!time || time === "00:00") {
-        document.getElementById("time-hint").textContent = "Captura una hora de inicio y fin válidas.";
+        hint.textContent = "⚠️ El tiempo es 00:00. Verifica que la hora de fin sea distinta.";
+        hint.classList.add("error");
         return;
       }
       const status = String(fd.get("status") || "trabajando");
       DB.addTask({
         userId: user.id,
         name: String(fd.get("name")).trim(),
-        start: String(fd.get("start") || "").trim(),
-        end: String(fd.get("end") || "").trim(),
-        time,
+        start, end, time,
         comments: String(fd.get("comments") || "").trim(),
         status,
         done: status === "realizada",
       });
       e.target.reset();
+      hint.classList.remove("error");
       render();
     });
 
@@ -596,13 +605,18 @@
           b.addEventListener("click", () => approveDialog(b.dataset.approve, refresh))
         );
         pendingList.querySelectorAll("[data-reject]").forEach(b =>
-          b.addEventListener("click", () => {
+          b.addEventListener("click", async () => {
             const u = DB.getUserById(b.dataset.reject);
             if (!u) return;
-            if (confirm(`¿Rechazar la solicitud de ${u.name}?`)) {
-              DB.updateUser(u.id, { status: "rejected" });
-              refresh();
-            }
+            const ok = await confirmDialog({
+              title: "Rechazar solicitud",
+              message: `¿Rechazar la solicitud de ${u.name}? Verá un agujero negro al iniciar sesión.`,
+              confirmText: "Rechazar",
+              cancelText: "Cancelar",
+              danger: true,
+              icon: "🚫",
+            });
+            if (ok) { DB.updateUser(u.id, { status: "rejected" }); refresh(); }
           })
         );
       }
@@ -646,13 +660,18 @@
         b.addEventListener("click", () => changeStatusDialog(b.dataset.status, refresh))
       );
       tbody.querySelectorAll("[data-deactivate]").forEach(b =>
-        b.addEventListener("click", () => {
+        b.addEventListener("click", async () => {
           const u = DB.getUserById(b.dataset.deactivate);
           if (!u) return;
-          if (confirm(`¿Dar de baja a ${u.name}? No podrá iniciar sesión hasta ser reactivado.`)) {
-            DB.updateUser(u.id, { status: "inactive" });
-            refresh();
-          }
+          const ok = await confirmDialog({
+            title: "Dar de baja",
+            message: `¿Dar de baja a ${u.name}? No podrá iniciar sesión hasta que sea reactivado.`,
+            confirmText: "Dar de baja",
+            cancelText: "Cancelar",
+            danger: true,
+            icon: "🌑",
+          });
+          if (ok) { DB.updateUser(u.id, { status: "inactive" }); refresh(); }
         })
       );
       tbody.querySelectorAll("[data-reactivate]").forEach(b =>
@@ -666,10 +685,18 @@
         })
       );
       tbody.querySelectorAll("[data-drop]").forEach(b =>
-        b.addEventListener("click", () => {
+        b.addEventListener("click", async () => {
           const u = DB.getUserById(b.dataset.drop);
           if (!u) return;
-          if (confirm(`Eliminar a ${u.name} y todas sus tareas?`)) { DB.deleteUser(u.id); refresh(); }
+          const ok = await confirmDialog({
+            title: "Eliminar usuario",
+            message: `Esta acción borrará a ${u.name} y todas sus tareas de forma permanente. ¿Continuar?`,
+            confirmText: "Eliminar",
+            cancelText: "Cancelar",
+            danger: true,
+            icon: "🗑️",
+          });
+          if (ok) { DB.deleteUser(u.id); refresh(); }
         })
       );
     }
@@ -1149,6 +1176,30 @@
       }
     }
     draw();
+  }
+
+  /* Diálogo de confirmación con estilo (reemplazo de window.confirm) */
+  function confirmDialog({ title, message, confirmText = "Confirmar", cancelText = "Cancelar", danger = false, icon = "⚠️" }) {
+    return new Promise(resolve => {
+      const dlg = document.createElement("dialog");
+      dlg.className = "confirm-dialog" + (danger ? " is-danger" : "");
+      dlg.innerHTML = `
+        <div class="confirm-icon">${icon}</div>
+        <h3>${escapeHtml(title)}</h3>
+        <p class="confirm-msg">${escapeHtml(message)}</p>
+        <div class="row confirm-row">
+          <button type="button" class="btn-ghost" id="cd-cancel">${escapeHtml(cancelText)}</button>
+          <button type="button" class="${danger ? "btn-danger" : "btn-primary"}" id="cd-confirm">${escapeHtml(confirmText)}</button>
+        </div>
+      `;
+      document.body.appendChild(dlg);
+      dlg.showModal();
+      const close = (val) => { try { dlg.close(); } catch(_){} dlg.remove(); resolve(val); };
+      dlg.querySelector("#cd-cancel").addEventListener("click", () => close(false));
+      dlg.querySelector("#cd-confirm").addEventListener("click", () => close(true));
+      dlg.addEventListener("click", (e) => { if (e.target === dlg) close(false); });
+      dlg.addEventListener("cancel", (e) => { e.preventDefault(); close(false); });
+    });
   }
 
   /* =================== Helpers =================== */
