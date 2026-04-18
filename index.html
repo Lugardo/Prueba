@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control de Tareas Diarias</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="space-bg">
+    <div class="stars"></div>
+    <div class="stars stars-2"></div>
+    <div class="stars stars-3"></div>
+    <div class="asteroid asteroid-1"></div>
+    <div class="asteroid asteroid-2"></div>
+    <div class="asteroid asteroid-3"></div>
+    <div class="asteroid asteroid-4"></div>
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    <div class="planet planet-1"></div>
+    <div class="planet planet-2"></div>
+  </div>
+
+  <main class="auth-wrapper">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="planetG" cx="35%" cy="35%">
+              <stop offset="0%" stop-color="#8ad4ff"/>
+              <stop offset="60%" stop-color="#1e6bd6"/>
+              <stop offset="100%" stop-color="#0a2a66"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="30" fill="url(#planetG)"/>
+          <ellipse cx="50" cy="52" rx="46" ry="10" fill="none" stroke="#6fb6ff" stroke-width="2" opacity="0.8" transform="rotate(-20 50 52)"/>
+          <circle cx="74" cy="34" r="3" fill="#cfe8ff"/>
+          <circle cx="22" cy="70" r="2" fill="#cfe8ff"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Control de Tareas Diarias</h1>
+      <p class="brand-sub">Plataforma Orbital de Productividad</p>
+    </header>
+
+    <section class="auth-card" id="auth-card">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="login" role="tab">Iniciar sesión</button>
+        <button class="tab" data-tab="register" role="tab">Registrarse</button>
+        <button class="tab" data-tab="reset" role="tab">Recuperar</button>
+      </nav>
+
+      <form class="form active" id="form-login" autocomplete="off">
+        <label>
+          <span>Usuario</span>
+          <input type="text" name="username" required placeholder="astronauta_01" />
+        </label>
+        <label>
+          <span>Contraseña</span>
+          <div class="password-wrap">
+            <input type="password" name="password" required placeholder="••••••••" />
+            <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </label>
+        <button class="btn-primary" type="submit">Despegar</button>
+        <p class="form-msg" id="login-msg"></p>
+        <p class="hint">¿Primer viaje? Usa "Registrarse". ¿Perdiste la clave? Usa "Recuperar".</p>
+      </form>
+
+      <form class="form" id="form-register" autocomplete="off">
+        <label>
+          <span>Nombre completo</span>
+          <input type="text" name="name" required placeholder="Nombre Apellido" />
+        </label>
+        <label>
+          <span>Teléfono</span>
+          <input type="tel" name="phone" required placeholder="+52 55 0000 0000" />
+        </label>
+        <label>
+          <span>Correo electrónico</span>
+          <input type="email" name="email" required placeholder="correo@dominio.com" />
+        </label>
+        <label>
+          <span>Usuario</span>
+          <input type="text" name="username" required placeholder="Elige un usuario" />
+        </label>
+        <label>
+          <span>Contraseña</span>
+          <div class="password-wrap">
+            <input type="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6" />
+            <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </label>
+        <label>
+          <span>Tipo de usuario</span>
+          <select name="role" required>
+            <option value="colaborador">Colaborador</option>
+            <option value="empleador">Empleador</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </label>
+        <label class="avatar-label">
+          <span>Avatar</span>
+          <input type="file" name="avatar" accept="image/*" id="avatar-input" />
+          <div class="avatar-preview" id="avatar-preview">
+            <span>Sin imagen</span>
+          </div>
+        </label>
+        <button class="btn-primary" type="submit">Crear cuenta</button>
+        <p class="form-msg" id="register-msg"></p>
+      </form>
+
+      <form class="form" id="form-reset" autocomplete="off">
+        <div class="reset-step" data-step="1">
+          <label>
+            <span>Usuario o correo</span>
+            <input type="text" name="identifier" required placeholder="Tu usuario o correo" />
+          </label>
+          <button class="btn-primary" type="button" id="send-code">Enviar código</button>
+          <p class="form-msg" id="reset-msg"></p>
+        </div>
+        <div class="reset-step" data-step="2" hidden>
+          <p class="hint">Hemos generado un código de 6 dígitos. En producción se enviaría al correo; aquí se muestra en pantalla por fines de demostración.</p>
+          <p class="demo-code" id="demo-code"></p>
+          <label>
+            <span>Código de verificación</span>
+            <input type="text" name="code" maxlength="6" placeholder="000000" />
+          </label>
+          <label>
+            <span>Nueva contraseña</span>
+            <div class="password-wrap">
+              <input type="password" name="newPass" minlength="6" placeholder="Nueva contraseña" />
+              <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
+            </div>
+          </label>
+          <button class="btn-primary" type="button" id="confirm-reset">Restablecer contraseña</button>
+        </div>
+      </form>
+    </section>
+
+    <footer class="auth-foot">
+      <p>Estación base · Acceso seguro · v1.0</p>
+    </footer>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

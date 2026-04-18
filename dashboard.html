@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel · Control de Tareas Diarias</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="dashboard-body">
+  <div class="space-bg">
+    <div class="stars"></div>
+    <div class="stars stars-2"></div>
+    <div class="stars stars-3"></div>
+    <div class="asteroid asteroid-1"></div>
+    <div class="asteroid asteroid-2"></div>
+    <div class="asteroid asteroid-3"></div>
+    <div class="asteroid asteroid-4"></div>
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    <div class="planet planet-1"></div>
+    <div class="planet planet-2"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo logo-sm" aria-hidden="true">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="30" fill="#1e6bd6"/>
+          <ellipse cx="50" cy="52" rx="46" ry="10" fill="none" stroke="#6fb6ff" stroke-width="2" opacity="0.8" transform="rotate(-20 50 52)"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Control de Tareas Diarias</h2>
+        <p class="role-tag" id="role-tag">—</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <img id="user-avatar" alt="avatar" />
+        <div>
+          <strong id="user-name">—</strong>
+          <small id="user-username">—</small>
+        </div>
+      </div>
+      <button class="btn-ghost" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section id="panel" class="panel"></section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
