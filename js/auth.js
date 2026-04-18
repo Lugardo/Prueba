@@ -20,6 +20,7 @@
       if (!user || user.password !== password) return { ok: false, error: "Usuario o contraseña incorrectos." };
       if (user.status === "pending")  return { ok: false, state: "pending",  user, error: "Tu registro aún no ha sido aprobado." };
       if (user.status === "rejected") return { ok: false, state: "rejected", user, error: "Tu solicitud fue rechazada." };
+      if (user.status === "inactive") return { ok: false, state: "inactive", user, error: "Tu cuenta fue dada de baja." };
       DB.setSession({ userId: user.id });
       return { ok: true, user };
     },

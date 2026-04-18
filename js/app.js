@@ -83,7 +83,7 @@
       return;
     }
     if (res.state === "pending")  return showPendingContact(false);
-    if (res.state === "rejected") return showView("blackhole");
+    if (res.state === "rejected" || res.state === "inactive") return showView("blackhole");
     setMsg("login-msg", res.error, "error");
   });
 

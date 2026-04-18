@@ -540,6 +540,7 @@
     function statusLabelUser(s) {
       if (s === "pending")  return "Pendiente";
       if (s === "rejected") return "Rechazado";
+      if (s === "inactive") return "Dado de baja";
       return "Aprobado";
     }
 
@@ -597,6 +598,11 @@
               <button class="btn-ghost" data-reset="${u.id}">Restablecer</button>
               <button class="btn-ghost" data-role="${u.id}">Cambiar rol</button>
               <button class="btn-ghost" data-status="${u.id}">Cambiar estado</button>
+              ${u.id !== user.id ? (
+                st === "inactive"
+                  ? `<button class="btn-ok" data-reactivate="${u.id}">Reactivar</button>`
+                  : `<button class="btn-danger" data-deactivate="${u.id}">Dar de baja</button>`
+              ) : ""}
               ${u.id !== user.id ? `<button class="btn-danger" data-drop="${u.id}">Eliminar</button>` : `<em style="opacity:.6">tú</em>`}
             </td>
           </tr>
@@ -610,6 +616,26 @@
       );
       tbody.querySelectorAll("[data-status]").forEach(b =>
         b.addEventListener("click", () => changeStatusDialog(b.dataset.status, refresh))
+      );
+      tbody.querySelectorAll("[data-deactivate]").forEach(b =>
+        b.addEventListener("click", () => {
+          const u = DB.getUserById(b.dataset.deactivate);
+          if (!u) return;
+          if (confirm(`¿Dar de baja a ${u.name}? No podrá iniciar sesión hasta ser reactivado.`)) {
+            DB.updateUser(u.id, { status: "inactive" });
+            refresh();
+          }
+        })
+      );
+      tbody.querySelectorAll("[data-reactivate]").forEach(b =>
+        b.addEventListener("click", () => {
+          const u = DB.getUserById(b.dataset.reactivate);
+          if (!u) return;
+          const patch = { status: "approved" };
+          if (!u.role) patch.role = "colaborador";
+          DB.updateUser(u.id, patch);
+          refresh();
+        })
       );
       tbody.querySelectorAll("[data-drop]").forEach(b =>
         b.addEventListener("click", () => {
@@ -657,6 +683,7 @@
     const opts = [
       { k: "approved", l: "Aprobado" },
       { k: "pending",  l: "Pendiente" },
+      { k: "inactive", l: "Dado de baja (agujero negro)" },
       { k: "rejected", l: "Rechazado (agujero negro)" },
     ];
     const current = u.status || "approved";

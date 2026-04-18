@@ -706,6 +706,9 @@ tbody tr:hover { background: rgba(61,139,255,0.06); }
 .badge.user-status-approved { background: rgba(79,225,167,0.2); color: var(--ok); }
 .badge.user-status-pending  { background: rgba(255,209,102,0.22); color: var(--warn); }
 .badge.user-status-rejected { background: rgba(255,107,107,0.22); color: var(--danger); }
+.badge.user-status-inactive { background: rgba(168,168,168,0.2); color: #c9d4e0; }
+tr.row-status-inactive,
+tr.row-status-rejected { opacity: 0.65; }
 
 /* Solicitudes pendientes */
 .pending-card {
