@@ -1371,50 +1371,8 @@ dialog.task-details-dialog { max-width: 520px; }
 .reports-banner p { margin: 0; color: var(--blue-300); font-size: 0.88rem; }
 .reports-banner .btn-primary { text-decoration: none; text-align: center; padding: 12px 18px; }
 
-.rep-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  align-items: center;
-  padding: 12px;
-  background: rgba(2,8,33,0.55);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-}
-.rep-filters .rep-f-control,
-.rep-filters input[type="date"] {
-  background: rgba(2,8,33,0.75);
-  border: 1px solid rgba(138,212,255,0.22);
-  color: #fff;
-  padding: 8px 10px;
-  border-radius: 9px;
-  font-family: inherit;
-  font-size: 0.88rem;
-  color-scheme: dark;
-}
-.rep-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--blue-300);
-  font-size: 0.72rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.rep-date > span { white-space: nowrap; }
-.rep-f-search { flex: 1 1 220px; }
-
-.rep-presets {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-left: auto;
-}
-.rep-presets .btn-ghost {
-  padding: 7px 11px;
-  font-size: 0.78rem;
-  letter-spacing: 0.5px;
-}
+/* El search reutiliza el estilo de .cal-f-control del calendario y crece para llenar el ancho */
+.rep-search { flex: 1 1 220px; }
 
 .rep-toolbar {
   display: flex;
@@ -1460,14 +1418,7 @@ dialog.task-details-dialog { max-width: 520px; }
 
 /* En mobile: convertir cada fila en tarjeta como ya se hace en admin */
 @media (max-width: 720px) {
-  .rep-filters { padding: 10px; gap: 8px; }
-  .rep-filters .rep-f-control,
-  .rep-filters input[type="date"] { width: 100%; padding: 10px; font-size: 0.9rem; }
-  .rep-date { width: 100%; flex-direction: column; align-items: stretch; gap: 4px; }
-  .rep-date > span { font-size: 0.65rem; }
-  .rep-f-search { flex: 1 1 100%; }
-  .rep-presets { width: 100%; margin-left: 0; }
-  .rep-presets .btn-ghost { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 9px 6px; }
+  .rep-search { flex: 1 1 100%; }
   .rep-toolbar { flex-direction: column; align-items: stretch; }
   .rep-actions { justify-content: stretch; }
   .rep-actions button { flex: 1; }
@@ -1506,7 +1457,7 @@ dialog.task-details-dialog { max-width: 520px; }
 /* Modo impresión: ocultar todo menos el reporte y fondo blanco */
 @media print {
   body { background: #fff !important; color: #000 !important; }
-  .space-bg, .topbar, .rep-toolbar, .rep-filters, .rep-presets, .reports-banner,
+  .space-bg, .topbar, .rep-toolbar, .cal-filters, .cal-presets, .reports-banner,
   .hamburger, .topbar-right, dialog { display: none !important; }
   .card { background: #fff !important; border: 1px solid #ccc; box-shadow: none; color: #000; }
   .card h3, .card .lbl, .card .num, .stat .num, .stat .lbl { color: #000 !important; }
