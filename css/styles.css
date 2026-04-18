@@ -904,6 +904,79 @@ dialog.time-picker-dialog::backdrop { background: rgba(2,8,33,0.8); backdrop-fil
 .notes-add-row .btn-ok { margin-left: auto; }
 
 /* ---------- Calendario ---------- */
+.cal-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(2,8,33,0.55);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+.cal-filters .cal-f-control,
+.cal-filters input[type="date"] {
+  background: rgba(2,8,33,0.75);
+  border: 1px solid rgba(138,212,255,0.22);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color-scheme: dark;
+}
+.cal-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue-300);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.cal-date > span { white-space: nowrap; }
+.cal-presets {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.cal-presets .btn-ghost {
+  padding: 7px 11px;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+}
+
+.cal-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.cal-stat-pill {
+  background: linear-gradient(135deg, rgba(61,139,255,0.18), rgba(30,107,214,0.08));
+  border: 1px solid rgba(138,212,255,0.22);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cal-stat-pill .cal-stat-lbl {
+  font-size: 0.68rem;
+  color: var(--blue-300);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.cal-stat-pill strong {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 .cal-head {
   display: flex;
   align-items: center;
@@ -1168,6 +1241,20 @@ dialog.task-details-dialog { max-width: 520px; }
   .cal-count { font-size: 0.58rem; padding: 1px 5px; top: 3px; right: 4px; }
   .cal-cell { gap: 2px; min-height: 52px; padding: 5px; }
   .cal-legend { gap: 8px; font-size: 0.72rem; }
+
+  /* Filtros del calendario en columna */
+  .cal-filters { padding: 10px; gap: 8px; }
+  .cal-filters .cal-f-control,
+  .cal-filters input[type="date"] { width: 100%; padding: 10px; font-size: 0.9rem; }
+  .cal-date { width: 100%; flex-direction: column; align-items: stretch; gap: 4px; }
+  .cal-date > span { font-size: 0.65rem; }
+  .cal-presets { width: 100%; margin-left: 0; }
+  .cal-presets .btn-ghost { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 9px 6px; }
+
+  .cal-stats-bar { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .cal-stat-pill { padding: 8px 10px; }
+  .cal-stat-pill strong { font-size: 1rem; }
+  .cal-stat-pill .cal-stat-lbl { font-size: 0.6rem; }
 }
 
 @media (max-width: 420px) {
@@ -1184,6 +1271,10 @@ dialog.task-details-dialog { max-width: 520px; }
   .cal-cell { min-height: 44px; padding: 3px; }
   .cal-num { font-size: 0.72rem; }
   .cal-dot { width: 6px; height: 6px; }
+
+  /* Dos stats por fila en pantallas chicas */
+  .cal-stats-bar { grid-template-columns: 1fr 1fr; }
+  .cal-stat-pill:nth-child(3) { grid-column: 1 / -1; }
 
   /* En pantallas muy chicas, la fecha de la tarea se oculta para liberar espacio */
   .task-meta .meta-date { display: none; }

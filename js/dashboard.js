@@ -710,22 +710,78 @@
   }
 
   /* =================== Calendario =================== */
-  function renderCalendar(container, tasks, cardOpts = { canChangeStatus: true, canDelete: true }) {
+  function renderCalendar(container, allTasks, cardOpts = { canChangeStatus: true, canDelete: true }) {
     let viewDate = new Date();
     let selected = null;
+    const showOwnerFilter = !!cardOpts.showOwner;
+    const colabs = showOwnerFilter ? DB.getUsers().filter(u => u.role === "colaborador") : [];
+    const filters = { userId: "", status: "", from: "", to: "" };
+
+    const pad = n => String(n).padStart(2, "0");
+    const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+    function applyFilters(list) {
+      return list.filter(t => {
+        if (filters.userId && t.userId !== filters.userId) return false;
+        if (filters.status && getStatus(t) !== filters.status) return false;
+        const ts = t.createdAt;
+        if (filters.from) {
+          const f = new Date(filters.from + "T00:00:00").getTime();
+          if (ts < f) return false;
+        }
+        if (filters.to) {
+          const tt = new Date(filters.to + "T23:59:59.999").getTime();
+          if (ts > tt) return false;
+        }
+        return true;
+      });
+    }
+
+    function totalMinutes(list) {
+      return list.reduce((s, t) => {
+        const m = /^(\d{1,2}):(\d{2})$/.exec(t.time || "");
+        return s + (m ? +m[1] * 60 + +m[2] : 0);
+      }, 0);
+    }
+    function fmtMin(min) {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return `${h}h ${pad(m)}m`;
+    }
+
+    function applyPreset(p) {
+      const now = new Date();
+      if (p === "today") {
+        filters.from = filters.to = ymd(now);
+      } else if (p === "yesterday") {
+        const y = new Date(now); y.setDate(y.getDate() - 1);
+        filters.from = filters.to = ymd(y);
+      } else if (p === "week") {
+        const d = new Date(now);
+        const dow = (d.getDay() + 6) % 7;
+        d.setDate(d.getDate() - dow);
+        const e = new Date(d); e.setDate(e.getDate() + 6);
+        filters.from = ymd(d); filters.to = ymd(e);
+      } else if (p === "month") {
+        filters.from = ymd(new Date(now.getFullYear(), now.getMonth(), 1));
+        filters.to   = ymd(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+      } else if (p === "clear") {
+        filters.userId = ""; filters.status = ""; filters.from = ""; filters.to = "";
+      }
+    }
 
     function draw() {
+      const filteredTasks = applyFilters(allTasks);
       const y = viewDate.getFullYear();
       const mo = viewDate.getMonth();
       const first = new Date(y, mo, 1);
       const daysInMonth = new Date(y, mo + 1, 0).getDate();
-      const startOffset = (first.getDay() + 6) % 7; // lunes = 0
+      const startOffset = (first.getDay() + 6) % 7;
       const monthName = first.toLocaleString("es", { month: "long", year: "numeric" });
-
       const dayKey = d => `${y}-${pad(mo+1)}-${pad(d)}`;
-      const pad = n => String(n).padStart(2, "0");
+
       const tasksByDay = {};
-      tasks.forEach(t => {
+      filteredTasks.forEach(t => {
         const d = new Date(t.createdAt);
         if (d.getFullYear() === y && d.getMonth() === mo) {
           const k = dayKey(d.getDate());
@@ -752,7 +808,37 @@
         `);
       }
 
+      const totalMin = totalMinutes(filteredTasks);
+      const realizadas = filteredTasks.filter(t => getStatus(t) === "realizada").length;
+
       container.innerHTML = `
+        <div class="cal-filters">
+          ${showOwnerFilter ? `
+            <select id="cal-f-user" class="cal-f-control">
+              <option value="">Todos los colaboradores</option>
+              ${colabs.map(u => `<option value="${u.id}" ${filters.userId===u.id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}
+            </select>` : ""}
+          <select id="cal-f-status" class="cal-f-control">
+            <option value="">Cualquier estado</option>
+            ${STATUSES.map(s => `<option value="${s.key}" ${filters.status===s.key?"selected":""}>${s.label}</option>`).join("")}
+          </select>
+          <label class="cal-date"><span>Desde</span><input type="date" id="cal-f-from" value="${filters.from}"/></label>
+          <label class="cal-date"><span>Hasta</span><input type="date" id="cal-f-to" value="${filters.to}"/></label>
+          <div class="cal-presets">
+            <button type="button" class="btn-ghost" data-preset="today">Hoy</button>
+            <button type="button" class="btn-ghost" data-preset="yesterday">Ayer</button>
+            <button type="button" class="btn-ghost" data-preset="week">Esta semana</button>
+            <button type="button" class="btn-ghost" data-preset="month">Este mes</button>
+            <button type="button" class="btn-ghost" data-preset="clear">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="cal-stats-bar">
+          <div class="cal-stat-pill"><span class="cal-stat-lbl">Tareas</span><strong>${filteredTasks.length}</strong></div>
+          <div class="cal-stat-pill"><span class="cal-stat-lbl">Horas trabajadas</span><strong>${fmtMin(totalMin)}</strong></div>
+          <div class="cal-stat-pill"><span class="cal-stat-lbl">Realizadas</span><strong>${realizadas}</strong></div>
+        </div>
+
         <div class="cal-head">
           <button type="button" class="btn-ghost" id="cal-prev">◀</button>
           <strong class="cal-title">${monthName}</strong>
@@ -767,6 +853,16 @@
         </div>
         <ul class="task-list cal-day-list" id="cal-day-list"></ul>
       `;
+
+      const userSel = container.querySelector("#cal-f-user");
+      if (userSel) userSel.addEventListener("change", () => { filters.userId = userSel.value; selected = null; draw(); });
+      const statusSel = container.querySelector("#cal-f-status");
+      statusSel.addEventListener("change", () => { filters.status = statusSel.value; selected = null; draw(); });
+      container.querySelector("#cal-f-from").addEventListener("change", e => { filters.from = e.target.value; selected = null; draw(); });
+      container.querySelector("#cal-f-to").addEventListener("change", e => { filters.to = e.target.value; selected = null; draw(); });
+      container.querySelectorAll("[data-preset]").forEach(b =>
+        b.addEventListener("click", () => { applyPreset(b.dataset.preset); selected = null; draw(); })
+      );
 
       container.querySelector("#cal-prev").addEventListener("click", () => { viewDate = new Date(y, mo - 1, 1); selected = null; draw(); });
       container.querySelector("#cal-next").addEventListener("click", () => { viewDate = new Date(y, mo + 1, 1); selected = null; draw(); });
