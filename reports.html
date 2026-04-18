@@ -47,26 +47,38 @@
     <section class="card">
       <h3>Filtros</h3>
       <div class="rep-filters">
-        <label><span>Colaborador</span>
-          <select id="rep-user">
+        <label class="rep-field">
+          <span class="rep-field-label">👤 Colaborador</span>
+          <select id="rep-user" class="rep-input">
             <option value="">Todos</option>
           </select>
         </label>
-        <label><span>Estado</span>
-          <select id="rep-status">
+        <label class="rep-field">
+          <span class="rep-field-label">🏷️ Estado</span>
+          <select id="rep-status" class="rep-input">
             <option value="">Cualquiera</option>
           </select>
         </label>
-        <label><span>Desde</span><input type="date" id="rep-from"/></label>
-        <label><span>Hasta</span><input type="date" id="rep-to"/></label>
-        <input type="text" id="rep-text" placeholder="🔎 Buscar en tarea o comentario" />
+        <label class="rep-field">
+          <span class="rep-field-label">📅 Desde</span>
+          <input type="date" id="rep-from" class="rep-input"/>
+        </label>
+        <label class="rep-field">
+          <span class="rep-field-label">📅 Hasta</span>
+          <input type="date" id="rep-to" class="rep-input"/>
+        </label>
+        <label class="rep-field rep-field-search">
+          <span class="rep-field-label">🔎 Búsqueda</span>
+          <input type="text" id="rep-text" class="rep-input" placeholder="Nombre de tarea o comentario..." />
+        </label>
       </div>
       <div class="rep-presets">
+        <span class="rep-presets-label">Rangos rápidos:</span>
         <button type="button" class="btn-ghost" data-preset="today">Hoy</button>
         <button type="button" class="btn-ghost" data-preset="yesterday">Ayer</button>
         <button type="button" class="btn-ghost" data-preset="week">Esta semana</button>
         <button type="button" class="btn-ghost" data-preset="month">Este mes</button>
-        <button type="button" class="btn-ghost" data-preset="clear">Limpiar</button>
+        <button type="button" class="btn-ghost btn-clear" data-preset="clear">✕ Limpiar</button>
       </div>
     </section>
 
