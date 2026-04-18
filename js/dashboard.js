@@ -40,41 +40,21 @@
       <section class="card">
         <h3>Registrar nueva tarea</h3>
         <form id="task-form" class="form active">
-          <div class="grid-2">
-            <label><span>Nombre de la tarea</span>
-              <input name="name" required placeholder="Ej. Calibrar telescopio" />
+          <label><span>Nombre de la tarea</span>
+            <input name="name" required placeholder="Ej. Calibrar telescopio" />
+          </label>
+          <div class="grid-3">
+            <label><span>Hora de inicio</span>
+              <input type="time" name="start" id="start-input" required />
+            </label>
+            <label><span>Hora de fin</span>
+              <input type="time" name="end" id="end-input" required />
             </label>
             <label><span>Tiempo (HH:MM)</span>
-              <div class="time-wrap">
-                <input name="time" id="time-input" required placeholder="01:30" pattern="^\\d{1,2}:\\d{2}$" />
-                <button type="button" class="calc-toggle" id="calc-toggle" title="Calculadora de tiempo">🧮</button>
-              </div>
+              <input name="time" id="time-input" required readonly placeholder="00:00" />
             </label>
           </div>
-
-          <div class="time-calc" id="time-calc" hidden>
-            <div class="calc-head">
-              <strong>Calculadora de tiempo</strong>
-              <span class="calc-total" id="calc-total">00:00</span>
-            </div>
-            <div class="calc-grid">
-              <label><span>Horas</span>
-                <input type="number" min="0" step="1" id="calc-h" placeholder="0" />
-              </label>
-              <label><span>Minutos</span>
-                <input type="number" min="0" step="1" id="calc-m" placeholder="0" />
-              </label>
-              <label><span>Segundos</span>
-                <input type="number" min="0" step="1" id="calc-s" placeholder="0" />
-              </label>
-            </div>
-            <div class="calc-actions">
-              <button type="button" class="btn-ghost" id="calc-add">Sumar</button>
-              <button type="button" class="btn-ghost" id="calc-sub">Restar</button>
-              <button type="button" class="btn-danger" id="calc-clear">Limpiar</button>
-            </div>
-            <p class="hint">Cada vez que sumas/restas, el total se escribe automáticamente en el campo de tiempo en formato HH:MM.</p>
-          </div>
+          <p class="hint" id="time-hint">El tiempo se calcula automáticamente al capturar inicio y fin.</p>
           <label><span>Comentarios</span>
             <textarea name="comments" rows="3" placeholder="Detalles de la tarea..."></textarea>
           </label>
@@ -91,10 +71,17 @@
     document.getElementById("task-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
+      const time = String(fd.get("time") || "").trim();
+      if (!time || time === "00:00") {
+        document.getElementById("time-hint").textContent = "Captura una hora de inicio y fin válidas.";
+        return;
+      }
       DB.addTask({
         userId: user.id,
         name: String(fd.get("name")).trim(),
-        time: String(fd.get("time")).trim(),
+        start: String(fd.get("start") || "").trim(),
+        end: String(fd.get("end") || "").trim(),
+        time,
         comments: String(fd.get("comments") || "").trim(),
         done: false,
       });
@@ -102,7 +89,7 @@
       render();
     });
 
-    setupTimeCalculator();
+    setupTimeRange();
 
     const list = document.getElementById("my-tasks");
     if (!tasks.length) {
@@ -120,70 +107,38 @@
     );
   }
 
-  /* Calculadora de tiempo: convierte h/m/s a minutos, opera y formatea HH:MM */
-  function setupTimeCalculator() {
-    const timeInput = document.getElementById("time-input");
-    const toggle = document.getElementById("calc-toggle");
-    const box = document.getElementById("time-calc");
-    const total = document.getElementById("calc-total");
-    const h = document.getElementById("calc-h");
-    const m = document.getElementById("calc-m");
-    const s = document.getElementById("calc-s");
-    let totalMin = parseHHMMToMinutes(timeInput.value);
+  /* Cálculo automático del tiempo a partir de hora de inicio y fin.
+     Si la hora de fin es menor (cruza medianoche) se suman 24 h. */
+  function setupTimeRange() {
+    const startEl = document.getElementById("start-input");
+    const endEl = document.getElementById("end-input");
+    const timeEl = document.getElementById("time-input");
+    const hint = document.getElementById("time-hint");
 
-    function parseHHMMToMinutes(str) {
-      const match = /^(\d{1,2}):(\d{2})$/.exec(String(str || "").trim());
-      if (!match) return 0;
-      return (parseInt(match[1], 10) || 0) * 60 + (parseInt(match[2], 10) || 0);
+    function parseHM(v) {
+      const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || "").trim());
+      if (!m) return null;
+      return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
     }
-    function formatHHMM(totalMinutes) {
-      const mins = Math.max(0, Math.round(totalMinutes));
-      const hh = Math.floor(mins / 60);
-      const mm = mins % 60;
-      return String(hh).padStart(2, "0") + ":" + String(mm).padStart(2, "0");
+    function format(mins) {
+      const total = Math.max(0, Math.round(mins));
+      return String(Math.floor(total / 60)).padStart(2, "0") + ":" + String(total % 60).padStart(2, "0");
     }
-    function readInputMinutes() {
-      const hv = parseFloat(h.value) || 0;
-      const mv = parseFloat(m.value) || 0;
-      const sv = parseFloat(s.value) || 0;
-      return hv * 60 + mv + sv / 60;
+
+    function recompute() {
+      const a = parseHM(startEl.value);
+      const b = parseHM(endEl.value);
+      if (a === null || b === null) { timeEl.value = ""; hint.textContent = "El tiempo se calcula automáticamente al capturar inicio y fin."; return; }
+      let diff = b - a;
+      if (diff < 0) diff += 24 * 60;
+      timeEl.value = format(diff);
+      hint.textContent = diff === 0
+        ? "Inicio y fin iguales: 00:00."
+        : (b < a ? "La hora de fin es menor: se asume cruce de medianoche." : "Tiempo calculado correctamente.");
     }
-    function render() {
-      total.textContent = formatHHMM(totalMin);
-      timeInput.value = formatHHMM(totalMin);
-    }
-    function resetInputs() { h.value = m.value = s.value = ""; }
 
-    toggle.addEventListener("click", () => {
-      box.hidden = !box.hidden;
-      if (!box.hidden) {
-        totalMin = parseHHMMToMinutes(timeInput.value);
-        render();
-        h.focus();
-      }
-    });
-
-    document.getElementById("calc-add").addEventListener("click", () => {
-      totalMin += readInputMinutes();
-      if (totalMin < 0) totalMin = 0;
-      resetInputs(); render();
-    });
-    document.getElementById("calc-sub").addEventListener("click", () => {
-      totalMin -= readInputMinutes();
-      if (totalMin < 0) totalMin = 0;
-      resetInputs(); render();
-    });
-    document.getElementById("calc-clear").addEventListener("click", () => {
-      totalMin = 0; resetInputs(); render();
-    });
-
-    // Enter en cualquier campo = Sumar
-    [h, m, s].forEach(el => el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); document.getElementById("calc-add").click(); }
-    }));
-
-    // Si el usuario teclea manualmente el tiempo, sincronizamos el total
-    timeInput.addEventListener("input", () => { totalMin = parseHHMMToMinutes(timeInput.value); total.textContent = formatHHMM(totalMin); });
+    startEl.addEventListener("input", recompute);
+    endEl.addEventListener("input", recompute);
   }
 
   function taskCard(t, opts = {}) {
@@ -194,6 +149,7 @@
           <div class="task-name">${escapeHtml(t.name)}</div>
           <div class="task-meta">
             <span>⏱ ${escapeHtml(t.time || "--:--")}</span>
+            ${t.start || t.end ? `<span>🕒 ${escapeHtml(t.start || "--:--")} → ${escapeHtml(t.end || "--:--")}</span>` : ""}
             <span class="badge ${t.done ? "done" : "pending"}">${t.done ? "Completada" : "Pendiente"}</span>
             ${opts.showOwner && owner ? `<span>👤 ${escapeHtml(owner.name)}</span>` : ""}
             <span>🗓 ${new Date(t.updatedAt).toLocaleString()}</span>
@@ -287,7 +243,11 @@
       <h3>Editar tarea</h3>
       <form method="dialog" id="edit-form">
         <label><span>Nombre</span><input name="name" required value="${escapeHtml(t.name)}"/></label>
-        <label><span>Tiempo</span><input name="time" required value="${escapeHtml(t.time)}" pattern="^\\d{1,2}:\\d{2}$"/></label>
+        <div class="grid-3">
+          <label><span>Inicio</span><input type="time" name="start" value="${escapeHtml(t.start || "")}"/></label>
+          <label><span>Fin</span><input type="time" name="end" value="${escapeHtml(t.end || "")}"/></label>
+          <label><span>Tiempo</span><input name="time" id="edit-time" required value="${escapeHtml(t.time)}" pattern="^\\d{1,2}:\\d{2}$"/></label>
+        </div>
         <label><span>Comentarios</span><textarea name="comments" rows="3">${escapeHtml(t.comments || "")}</textarea></label>
         <label><span>Estado</span>
           <select name="done">
@@ -303,12 +263,28 @@
     `;
     document.body.appendChild(dlg);
     dlg.showModal();
+
+    const startEl = dlg.querySelector('[name="start"]');
+    const endEl = dlg.querySelector('[name="end"]');
+    const timeEl = dlg.querySelector("#edit-time");
+    function recompute() {
+      const parse = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ""); return m ? +m[1] * 60 + +m[2] : null; };
+      const a = parse(startEl.value), b = parse(endEl.value);
+      if (a === null || b === null) return;
+      let d = b - a; if (d < 0) d += 24 * 60;
+      timeEl.value = String(Math.floor(d / 60)).padStart(2, "0") + ":" + String(d % 60).padStart(2, "0");
+    }
+    startEl.addEventListener("input", recompute);
+    endEl.addEventListener("input", recompute);
+
     dlg.querySelector("#cancel-edit").addEventListener("click", () => { dlg.close(); dlg.remove(); });
     dlg.querySelector("#edit-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       DB.updateTask(t.id, {
         name: String(fd.get("name")).trim(),
+        start: String(fd.get("start") || "").trim(),
+        end: String(fd.get("end") || "").trim(),
         time: String(fd.get("time")).trim(),
         comments: String(fd.get("comments") || "").trim(),
         done: fd.get("done") === "1",
