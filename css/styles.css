@@ -65,25 +65,52 @@ body { background: transparent; }
   to   { transform: translate3d(-300px,-200px,0); }
 }
 
-/* Asteroids */
+/* Asteroids: roca irregular con cráteres usando varias capas de gradiente */
 .asteroid {
   position: absolute;
-  background: radial-gradient(circle at 35% 30%, #5a7aa8, #1a2a55 70%, #060b20 100%);
-  border-radius: 42% 58% 63% 37% / 47% 42% 58% 53%;
-  box-shadow: inset -6px -8px 14px rgba(0,0,0,0.6), 0 0 18px rgba(60,100,180,0.25);
-  animation: float linear infinite;
+  background:
+    radial-gradient(circle at 22% 30%, rgba(15,10,6,0.9) 2.5px, transparent 4.5px),
+    radial-gradient(circle at 62% 22%, rgba(30,22,14,0.75) 4px, transparent 7px),
+    radial-gradient(circle at 46% 68%, rgba(15,10,6,0.85) 2px, transparent 3.5px),
+    radial-gradient(circle at 78% 58%, rgba(22,16,10,0.8) 2.5px, transparent 4px),
+    radial-gradient(circle at 28% 78%, rgba(25,18,10,0.7) 2px, transparent 3.5px),
+    radial-gradient(circle at 82% 32%, rgba(15,10,6,0.75) 1.5px, transparent 3px),
+    radial-gradient(circle at 12% 56%, rgba(20,14,8,0.6) 1.5px, transparent 2.5px),
+    radial-gradient(ellipse at 32% 28%, #b49a80 0%, #7a6348 30%, #3f301f 70%, #1a110a 100%);
+  box-shadow:
+    inset -12px -16px 28px rgba(0,0,0,0.82),
+    inset 4px 5px 14px rgba(255, 230, 200, 0.09),
+    0 0 22px rgba(40, 28, 18, 0.5);
+  animation: tumble linear infinite;
+  will-change: transform;
 }
-.asteroid-1 { width: 70px; height: 62px; top: 18%; left: 12%;  animation-duration: 22s; }
-.asteroid-2 { width: 40px; height: 36px; top: 65%; left: 80%;  animation-duration: 30s; animation-direction: reverse; }
-.asteroid-3 { width: 95px; height: 80px; top: 78%; left: 22%;  animation-duration: 36s; }
-.asteroid-4 { width: 50px; height: 44px; top: 30%; left: 75%;  animation-duration: 26s; animation-direction: reverse; }
+.asteroid-1 {
+  width: 82px; height: 70px; top: 18%; left: 12%;
+  border-radius: 58% 42% 50% 50% / 40% 60% 55% 45%;
+  animation-duration: 38s;
+}
+.asteroid-2 {
+  width: 44px; height: 40px; top: 65%; left: 80%;
+  border-radius: 40% 60% 45% 55% / 55% 45% 62% 38%;
+  animation-duration: 50s; animation-direction: reverse;
+}
+.asteroid-3 {
+  width: 110px; height: 92px; top: 78%; left: 22%;
+  border-radius: 53% 47% 59% 41% / 46% 54% 49% 51%;
+  animation-duration: 58s;
+}
+.asteroid-4 {
+  width: 58px; height: 50px; top: 30%; left: 75%;
+  border-radius: 44% 56% 52% 48% / 58% 42% 53% 47%;
+  animation-duration: 44s; animation-direction: reverse;
+}
 
-@keyframes float {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(18px, -22px) rotate(90deg); }
-  50%  { transform: translate(-14px, -40px) rotate(180deg); }
-  75%  { transform: translate(-26px, -12px) rotate(270deg); }
-  100% { transform: translate(0, 0) rotate(360deg); }
+@keyframes tumble {
+  0%   { transform: translate(0, 0)    rotate(0deg); }
+  25%  { transform: translate(10px, -14px) rotate(90deg); }
+  50%  { transform: translate(-6px, -24px) rotate(180deg); }
+  75%  { transform: translate(-16px, -8px) rotate(270deg); }
+  100% { transform: translate(0, 0)    rotate(360deg); }
 }
 
 /* Comets */
@@ -111,35 +138,44 @@ body { background: transparent; }
 .comet-4 { animation: cometD 13s ease-in infinite; animation-delay: 12s; }
 .comet-5 { animation: cometE 19s ease-in infinite; animation-delay: 16s; }
 
+/* La cola se dibuja hacia +X desde la cabeza.
+   Para que "persiga" al cometa, rotamos en la dirección OPUESTA al movimiento:
+   angle = atan2(-dy, -dx) en coordenadas CSS (Y hacia abajo, rot CW positiva). */
+
+/* A: de derecha-arriba a izquierda-centro  (dirección motion: ←↓ ; cola: →↑)  */
 @keyframes cometA {
-  0%   { top: 5%;  left: 110%; opacity: 0; transform: rotate(18deg); }
+  0%   { top: 5%;  left: 110%; opacity: 0; transform: rotate(-16deg); }
   4%   { opacity: 1; }
-  22%  { top: 45%; left: -25%; opacity: 0; transform: rotate(18deg); }
-  100% { top: 45%; left: -25%; opacity: 0; transform: rotate(18deg); }
+  22%  { top: 45%; left: -25%; opacity: 0; transform: rotate(-16deg); }
+  100% { top: 45%; left: -25%; opacity: 0; transform: rotate(-16deg); }
 }
+/* B: de izquierda-abajo a derecha-arriba (motion: →↑ ; cola: ←↓)  */
 @keyframes cometB {
-  0%   { top: 60%; left: -10%; opacity: 0; transform: rotate(-14deg); }
+  0%   { top: 60%; left: -10%; opacity: 0; transform: rotate(162deg); }
   4%   { opacity: 1; }
-  18%  { top: 20%; left: 115%; opacity: 0; transform: rotate(-14deg); }
-  100% { top: 20%; left: 115%; opacity: 0; transform: rotate(-14deg); }
+  18%  { top: 20%; left: 115%; opacity: 0; transform: rotate(162deg); }
+  100% { top: 20%; left: 115%; opacity: 0; transform: rotate(162deg); }
 }
+/* C: de izquierda-arriba a derecha-abajo (motion: →↓ ; cola: ←↑)  */
 @keyframes cometC {
-  0%   { top: 15%; left: -10%; opacity: 0; transform: rotate(28deg); }
+  0%   { top: 15%; left: -10%; opacity: 0; transform: rotate(-156deg); }
   5%   { opacity: 1; }
-  20%  { top: 70%; left: 115%; opacity: 0; transform: rotate(28deg); }
-  100% { top: 70%; left: 115%; opacity: 0; transform: rotate(28deg); }
+  20%  { top: 70%; left: 115%; opacity: 0; transform: rotate(-156deg); }
+  100% { top: 70%; left: 115%; opacity: 0; transform: rotate(-156deg); }
 }
+/* D: de derecha-abajo a izquierda-arriba (motion: ←↑ ; cola: →↓) */
 @keyframes cometD {
-  0%   { top: 80%; left: 115%; opacity: 0; transform: rotate(10deg); }
+  0%   { top: 80%; left: 115%; opacity: 0; transform: rotate(20deg); }
   5%   { opacity: 1; }
-  22%  { top: 30%; left: -20%; opacity: 0; transform: rotate(10deg); }
-  100% { top: 30%; left: -20%; opacity: 0; transform: rotate(10deg); }
+  22%  { top: 30%; left: -20%; opacity: 0; transform: rotate(20deg); }
+  100% { top: 30%; left: -20%; opacity: 0; transform: rotate(20deg); }
 }
+/* E: de derecha-centro a izquierda-abajo (motion: ←↓ ; cola: →↑) */
 @keyframes cometE {
-  0%   { top: 35%; left: 115%; opacity: 0; transform: rotate(-22deg); }
+  0%   { top: 35%; left: 115%; opacity: 0; transform: rotate(-21deg); }
   5%   { opacity: 1; }
-  24%  { top: 90%; left: -25%; opacity: 0; transform: rotate(-22deg); }
-  100% { top: 90%; left: -25%; opacity: 0; transform: rotate(-22deg); }
+  24%  { top: 90%; left: -25%; opacity: 0; transform: rotate(-21deg); }
+  100% { top: 90%; left: -25%; opacity: 0; transform: rotate(-21deg); }
 }
 
 /* ---------- Auth page ---------- */
@@ -149,12 +185,12 @@ body { background: transparent; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 28px 20px;
 }
 
 .brand {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 .logo {
   width: 130px; height: 150px;
@@ -166,9 +202,9 @@ body { background: transparent; }
   animation: bob 5s ease-in-out infinite;
 }
 .logo svg, .logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.logo-sm { width: 125px; height: 125px; margin: 0; }
-.logo-img { width: 375px; height: 375px; max-width: 80vw; max-height: 50vh; }
-.logo-img.logo-sm { width: 125px; height: 125px; max-width: none; max-height: none; }
+.logo-sm { width: 50px; height: 50px; margin: 0; }
+.logo-img { width: 220px; height: 220px; max-width: 60vw; max-height: 28vh; }
+.logo-img.logo-sm { width: 50px; height: 50px; max-width: none; max-height: none; }
 @keyframes bob {
   0%,100% { transform: translateY(-4px); }
   50%     { transform: translateY(4px); }
@@ -403,7 +439,7 @@ body { background: transparent; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: 20px 24px;
   background: rgba(2,8,33,0.72);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
