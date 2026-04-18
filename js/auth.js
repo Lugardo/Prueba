@@ -18,6 +18,8 @@
     login(identifier, password) {
       const user = DB.getUserByIdentifier(identifier);
       if (!user || user.password !== password) return { ok: false, error: "Usuario o contraseña incorrectos." };
+      if (user.status === "pending")  return { ok: false, state: "pending",  user, error: "Tu registro aún no ha sido aprobado." };
+      if (user.status === "rejected") return { ok: false, state: "rejected", user, error: "Tu solicitud fue rechazada." };
       DB.setSession({ userId: user.id });
       return { ok: true, user };
     },
@@ -34,11 +36,12 @@
         email: data.email.trim(),
         username: generateUsername(data.name, email),
         password: data.password,
-        role: "colaborador",
+        role: "",
+        status: "pending",
         avatar: data.avatar || "",
       });
-      DB.setSession({ userId: user.id });
-      return { ok: true, user };
+      // No iniciamos sesión: la cuenta queda pendiente de aprobación.
+      return { ok: true, user, state: "pending" };
     },
 
     currentUser() {

@@ -501,12 +501,18 @@
     const all = DB.getUsers();
     const colabIds = new Set(all.filter(u => u.role === "colaborador").map(u => u.id));
     const teamTasks = DB.getTasks().filter(t => colabIds.has(t.userId));
+    const pending = all.filter(u => u.status === "pending");
     panel.innerHTML = `
       <div class="grid-3">
         <div class="stat"><div class="num">${all.length}</div><div class="lbl">Usuarios</div></div>
-        <div class="stat"><div class="num">${colabIds.size}</div><div class="lbl">Colaboradores</div></div>
+        <div class="stat"><div class="num">${pending.length}</div><div class="lbl">Pendientes</div></div>
         <div class="stat"><div class="num">${DB.getTasks().length}</div><div class="lbl">Tareas totales</div></div>
       </div>
+
+      <section class="card">
+        <h3>Solicitudes de registro</h3>
+        <div id="pending-list"></div>
+      </section>
 
       <section class="card">
         <h3>Calendario del equipo</h3>
@@ -518,7 +524,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Rol</th><th>Acciones</th></tr>
+              <tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
             <tbody id="admin-tbody"></tbody>
           </table>
@@ -528,28 +534,82 @@
 
     renderCalendar(document.getElementById("admin-calendar"), teamTasks,
       { showOwner: true, canChangeStatus: true, canEdit: true });
+    const pendingList = document.getElementById("pending-list");
     const tbody = document.getElementById("admin-tbody");
+
+    function statusLabelUser(s) {
+      if (s === "pending")  return "Pendiente";
+      if (s === "rejected") return "Rechazado";
+      return "Aprobado";
+    }
+
     function refresh() {
       const users = DB.getUsers();
-      tbody.innerHTML = users.map(u => `
-        <tr>
-          <td data-label="Usuario">@${escapeHtml(u.username)}</td>
-          <td data-label="Nombre">${escapeHtml(u.name)}</td>
-          <td data-label="Correo">${escapeHtml(u.email)}</td>
-          <td data-label="Teléfono">${escapeHtml(u.phone)}</td>
-          <td data-label="Rol"><span class="badge ${u.role}">${u.role}</span></td>
-          <td data-label="Acciones" class="cell-actions">
-            <button class="btn-ghost" data-reset="${u.id}">Restablecer</button>
-            <button class="btn-ghost" data-role="${u.id}">Cambiar rol</button>
-            ${u.id !== user.id ? `<button class="btn-danger" data-drop="${u.id}">Eliminar</button>` : `<em style="opacity:.6">tú</em>`}
-          </td>
-        </tr>
-      `).join("");
+
+      // Solicitudes pendientes
+      const pend = users.filter(u => u.status === "pending");
+      if (!pend.length) {
+        pendingList.innerHTML = `<p class="empty">No hay solicitudes pendientes.</p>`;
+      } else {
+        pendingList.innerHTML = pend.map(u => `
+          <div class="pending-card">
+            <div class="pending-info">
+              <div class="pending-name">${escapeHtml(u.name)}</div>
+              <div class="pending-meta">
+                <span>@${escapeHtml(u.username)}</span>
+                <span>📧 ${escapeHtml(u.email)}</span>
+                <span>📞 ${escapeHtml(u.phone)}</span>
+              </div>
+            </div>
+            <div class="pending-actions">
+              <button class="btn-ok" data-approve="${u.id}">Aprobar</button>
+              <button class="btn-danger" data-reject="${u.id}">Rechazar</button>
+            </div>
+          </div>
+        `).join("");
+        pendingList.querySelectorAll("[data-approve]").forEach(b =>
+          b.addEventListener("click", () => approveDialog(b.dataset.approve, refresh))
+        );
+        pendingList.querySelectorAll("[data-reject]").forEach(b =>
+          b.addEventListener("click", () => {
+            const u = DB.getUserById(b.dataset.reject);
+            if (!u) return;
+            if (confirm(`¿Rechazar la solicitud de ${u.name}?`)) {
+              DB.updateUser(u.id, { status: "rejected" });
+              refresh();
+            }
+          })
+        );
+      }
+
+      // Tabla principal
+      tbody.innerHTML = users.map(u => {
+        const st = u.status || "approved";
+        return `
+          <tr class="row-status-${st}">
+            <td data-label="Usuario">@${escapeHtml(u.username)}</td>
+            <td data-label="Nombre">${escapeHtml(u.name)}</td>
+            <td data-label="Correo">${escapeHtml(u.email)}</td>
+            <td data-label="Teléfono">${escapeHtml(u.phone)}</td>
+            <td data-label="Rol">${u.role ? `<span class="badge ${u.role}">${u.role}</span>` : `<span class="badge badge-none">sin rol</span>`}</td>
+            <td data-label="Estado"><span class="badge user-status-${st}">${statusLabelUser(st)}</span></td>
+            <td data-label="Acciones" class="cell-actions">
+              <button class="btn-ghost" data-reset="${u.id}">Restablecer</button>
+              <button class="btn-ghost" data-role="${u.id}">Cambiar rol</button>
+              <button class="btn-ghost" data-status="${u.id}">Cambiar estado</button>
+              ${u.id !== user.id ? `<button class="btn-danger" data-drop="${u.id}">Eliminar</button>` : `<em style="opacity:.6">tú</em>`}
+            </td>
+          </tr>
+        `;
+      }).join("");
       tbody.querySelectorAll("[data-reset]").forEach(b =>
         b.addEventListener("click", () => resetPasswordDialog(b.dataset.reset))
       );
       tbody.querySelectorAll("[data-role]").forEach(b =>
         b.addEventListener("click", () => changeRoleDialog(b.dataset.role, refresh))
+      );
+      tbody.querySelectorAll("[data-status]").forEach(b =>
+        b.addEventListener("click", () => changeStatusDialog(b.dataset.status, refresh))
       );
       tbody.querySelectorAll("[data-drop]").forEach(b =>
         b.addEventListener("click", () => {
@@ -560,6 +620,72 @@
       );
     }
     refresh();
+  }
+
+  function approveDialog(userId, onDone) {
+    const u = DB.getUserById(userId);
+    if (!u) return;
+    const roles = ["colaborador", "empleador", "supervisor", "administrador"];
+    const dlg = document.createElement("dialog");
+    dlg.innerHTML = `
+      <h3>Aprobar solicitud</h3>
+      <p>Selecciona el rol que tendrá <strong>${escapeHtml(u.name)}</strong>:</p>
+      <label><span>Rol asignado</span>
+        <select id="approve-role">
+          ${roles.map(r => `<option value="${r}">${r}</option>`).join("")}
+        </select>
+      </label>
+      <div class="row">
+        <button class="btn-ghost" id="cancel">Cancelar</button>
+        <button class="btn-ok" id="confirm">Aprobar</button>
+      </div>
+    `;
+    document.body.appendChild(dlg);
+    dlg.showModal();
+    dlg.querySelector("#cancel").addEventListener("click", () => { dlg.close(); dlg.remove(); });
+    dlg.querySelector("#confirm").addEventListener("click", () => {
+      const r = dlg.querySelector("#approve-role").value;
+      DB.updateUser(u.id, { status: "approved", role: r });
+      dlg.close(); dlg.remove();
+      onDone && onDone();
+    });
+  }
+
+  function changeStatusDialog(userId, onDone) {
+    const u = DB.getUserById(userId);
+    if (!u) return;
+    const opts = [
+      { k: "approved", l: "Aprobado" },
+      { k: "pending",  l: "Pendiente" },
+      { k: "rejected", l: "Rechazado (agujero negro)" },
+    ];
+    const current = u.status || "approved";
+    const dlg = document.createElement("dialog");
+    dlg.innerHTML = `
+      <h3>Cambiar estado</h3>
+      <p>Usuario: <strong>${escapeHtml(u.name)}</strong></p>
+      <label><span>Nuevo estado</span>
+        <select id="new-status">
+          ${opts.map(o => `<option value="${o.k}" ${o.k===current?"selected":""}>${o.l}</option>`).join("")}
+        </select>
+      </label>
+      <div class="row">
+        <button class="btn-ghost" id="cancel">Cancelar</button>
+        <button class="btn-primary" id="confirm">Guardar</button>
+      </div>
+    `;
+    document.body.appendChild(dlg);
+    dlg.showModal();
+    dlg.querySelector("#cancel").addEventListener("click", () => { dlg.close(); dlg.remove(); });
+    dlg.querySelector("#confirm").addEventListener("click", () => {
+      const s = dlg.querySelector("#new-status").value;
+      const patch = { status: s };
+      // Si pasa a aprobado sin rol, dejamos "colaborador" por defecto
+      if (s === "approved" && !u.role) patch.role = "colaborador";
+      DB.updateUser(u.id, patch);
+      dlg.close(); dlg.remove();
+      onDone && onDone();
+    });
   }
 
   function resetPasswordDialog(userId) {

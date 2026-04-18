@@ -24,10 +24,10 @@
   function seed() {
     if (!localStorage.getItem(K.USERS)) {
       const seedUsers = [
-        { id: uid(), name: "Admin General", phone: "+52 5500000000", email: "admin@orbital.app", username: "admin",  password: "admin123",  role: "administrador", avatar: "" },
-        { id: uid(), name: "Laura Empleador", phone: "+52 5511111111", email: "laura@orbital.app", username: "laura",  password: "laura123",  role: "empleador",     avatar: "" },
-        { id: uid(), name: "Sergio Supervisor", phone: "+52 5522222222", email: "sergio@orbital.app", username: "sergio", password: "sergio123", role: "supervisor",    avatar: "" },
-        { id: uid(), name: "Carlos Colaborador", phone: "+52 5533333333", email: "carlos@orbital.app", username: "carlos", password: "carlos123", role: "colaborador",   avatar: "" },
+        { id: uid(), name: "Admin General", phone: "+52 5500000000", email: "admin@orbital.app", username: "admin",  password: "admin123",  role: "administrador", status: "approved", avatar: "" },
+        { id: uid(), name: "Laura Empleador", phone: "+52 5511111111", email: "laura@orbital.app", username: "laura",  password: "laura123",  role: "empleador",     status: "approved", avatar: "" },
+        { id: uid(), name: "Sergio Supervisor", phone: "+52 5522222222", email: "sergio@orbital.app", username: "sergio", password: "sergio123", role: "supervisor",    status: "approved", avatar: "" },
+        { id: uid(), name: "Carlos Colaborador", phone: "+52 5533333333", email: "carlos@orbital.app", username: "carlos", password: "carlos123", role: "colaborador",   status: "approved", avatar: "" },
       ];
       write(K.USERS, seedUsers);
     }

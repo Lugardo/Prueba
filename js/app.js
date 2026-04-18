@@ -46,14 +46,45 @@
     el.className = "form-msg " + (type || "");
   }
 
+  // ---- Views (contact admin / agujero negro) ----
+  const authMain = document.getElementById("auth-main");
+  const viewContact = document.getElementById("view-contact");
+  const viewBH = document.getElementById("view-blackhole");
+  const contactTitle = document.getElementById("contact-title");
+  const contactMsg = document.getElementById("contact-msg");
+
+  function showView(which) {
+    authMain.hidden = which !== "main";
+    viewContact.hidden = which !== "contact";
+    viewBH.hidden = which !== "blackhole";
+  }
+  document.getElementById("contact-back").addEventListener("click", () => showView("main"));
+  document.getElementById("bh-back").addEventListener("click", () => showView("main"));
+
+  function showPendingContact(afterRegister) {
+    if (afterRegister) {
+      contactTitle.textContent = "Registro recibido";
+      contactMsg.innerHTML = "Tu cuenta fue creada y está <strong>pendiente de aprobación</strong>. Para activarla, comunícate con un administrador:";
+    } else {
+      contactTitle.textContent = "Cuenta pendiente de aprobación";
+      contactMsg.innerHTML = "Tu registro todavía no ha sido aprobado. Comunícate con un administrador para activar tu cuenta:";
+    }
+    showView("contact");
+  }
+
   // ---- Login ----
   forms.login.addEventListener("submit", (e) => {
     e.preventDefault();
     const fd = new FormData(forms.login);
     const res = Auth.login(fd.get("username").trim(), fd.get("password"));
-    if (!res.ok) return setMsg("login-msg", res.error, "error");
-    setMsg("login-msg", "Acceso concedido. Despegando...", "ok");
-    setTimeout(() => window.location.href = "dashboard.html", 500);
+    if (res.ok) {
+      setMsg("login-msg", "Acceso concedido. Despegando...", "ok");
+      setTimeout(() => window.location.href = "dashboard.html", 500);
+      return;
+    }
+    if (res.state === "pending")  return showPendingContact(false);
+    if (res.state === "rejected") return showView("blackhole");
+    setMsg("login-msg", res.error, "error");
   });
 
   // ---- Registro + avatar ----
@@ -88,8 +119,10 @@
       avatar: avatarDataURL,
     });
     if (!res.ok) return setMsg("register-msg", res.error, "error");
-    setMsg("register-msg", "Cuenta creada. Redirigiendo...", "ok");
-    setTimeout(() => window.location.href = "dashboard.html", 600);
+    forms.register.reset();
+    if (avatarPreview) avatarPreview.innerHTML = `<span>Sin imagen</span>`;
+    avatarDataURL = "";
+    showPendingContact(true);
   });
 
   // ---- Recuperación de contraseña ----
