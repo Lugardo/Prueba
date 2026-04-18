@@ -1019,6 +1019,50 @@ dialog::backdrop { background: rgba(2,8,33,0.7); backdrop-filter: blur(4px); }
 dialog h3 { margin-top: 0; color: #fff; }
 dialog .row { justify-content: flex-end; margin-top: 14px; }
 
+/* Diálogo de detalles (solo lectura de datos + editor de notas) */
+dialog.task-details-dialog { max-width: 520px; }
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: rgba(2,8,33,0.55);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.info-cell.info-full { grid-column: 1 / -1; }
+.info-label {
+  font-size: 0.7rem;
+  color: var(--blue-300);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.info-val {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+.info-val.info-comment {
+  font-weight: 400;
+  color: var(--blue-100);
+  background: rgba(10,24,68,0.5);
+  border-radius: 8px;
+  padding: 8px 10px;
+  line-height: 1.4;
+}
+@media (max-width: 520px) {
+  .info-grid { grid-template-columns: 1fr 1fr; padding: 10px; gap: 8px; }
+}
+
 /* ================= Responsive: dashboard mobile ================= */
 @media (max-width: 720px) {
   .dashboard { margin: 16px auto; padding: 0 12px; }

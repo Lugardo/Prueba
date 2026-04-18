@@ -249,7 +249,7 @@
           ${notesHtml}
         </div>
         <div class="task-actions">
-          ${opts.canEdit ? `<button class="btn-ghost" data-edit="${t.id}">Editar</button>` : ""}
+          ${opts.canEdit ? `<button class="btn-ghost" data-edit="${t.id}">Detalles</button>` : ""}
           ${opts.canDelete ? `<button class="btn-danger" data-del="${t.id}">Eliminar</button>` : ""}
         </div>
       </li>
@@ -268,6 +268,11 @@
       </div>
 
       <section class="card">
+        <h3>Calendario del equipo</h3>
+        <div id="emp-calendar"></div>
+      </section>
+
+      <section class="card">
         <h3>Tareas del equipo</h3>
         <div class="filter-bar">
           <select id="f-user">
@@ -283,6 +288,9 @@
         <ul class="task-list" id="emp-tasks"></ul>
       </section>
     `;
+
+    renderCalendar(document.getElementById("emp-calendar"), allTasks,
+      { showOwner: true, canChangeStatus: true, canEdit: true });
 
     const list = document.getElementById("emp-tasks");
     const fUser = document.getElementById("f-user");
@@ -314,78 +322,110 @@
   function openEditTask(id, onDone) {
     const t = DB.getTasks().find(x => x.id === id);
     if (!t) return;
-    const dlg = document.createElement("dialog");
+    const owner = DB.getUserById(t.userId);
     const canManageNotes = user.role === "empleador" || user.role === "administrador";
+    const st = getStatus(t);
+    const dlg = document.createElement("dialog");
+    dlg.className = "task-details-dialog";
     dlg.innerHTML = `
-      <h3>Editar tarea</h3>
-      <form method="dialog" id="edit-form">
-        <label><span>Nombre</span><input name="name" required value="${escapeHtml(t.name)}"/></label>
-        <div class="grid-3">
-          <label><span>Inicio</span><input type="text" class="time-field" name="start" readonly value="${escapeHtml(t.start || "")}"/></label>
-          <label><span>Fin</span><input type="text" class="time-field" name="end" readonly value="${escapeHtml(t.end || "")}"/></label>
-          <label><span>Tiempo</span><input name="time" id="edit-time" required readonly value="${escapeHtml(t.time)}" pattern="^\\d{1,2}:\\d{2}$"/></label>
+      <h3>Detalles de la tarea</h3>
+      <div class="info-grid">
+        <div class="info-cell info-full">
+          <span class="info-label">Nombre</span>
+          <div class="info-val">${escapeHtml(t.name)}</div>
         </div>
-        <label><span>Comentarios</span><textarea name="comments" rows="3">${escapeHtml(t.comments || "")}</textarea></label>
-        <label><span>Estado</span>
-          <select name="status">${statusOptions(getStatus(t))}</select>
-        </label>
-        ${canManageNotes ? `
-          <div class="notes-editor">
-            <div class="notes-editor-title">Notas</div>
-            <div id="notes-list"></div>
-            <div class="notes-add">
-              <textarea id="note-text" rows="2" placeholder="Escribir nota..."></textarea>
-              <div class="notes-add-row">
-                <label class="inline-radio"><input type="radio" name="note-vis" value="private" checked/> 🔒 Privada</label>
-                <label class="inline-radio"><input type="radio" name="note-vis" value="public"/> 👁 Visible al colaborador</label>
-                <button type="button" class="btn-ok" id="add-note-btn">Agregar nota</button>
-              </div>
-            </div>
+        ${owner ? `
+          <div class="info-cell info-full">
+            <span class="info-label">Colaborador</span>
+            <div class="info-val">👤 ${escapeHtml(owner.name)}</div>
           </div>
         ` : ""}
-        <div class="row">
-          <button type="button" class="btn-ghost" id="cancel-edit">Cancelar</button>
-          <button type="submit" class="btn-primary">Guardar</button>
+        <div class="info-cell">
+          <span class="info-label">Inicio</span>
+          <div class="info-val">${escapeHtml(t.start || "--:--")}</div>
         </div>
-      </form>
+        <div class="info-cell">
+          <span class="info-label">Fin</span>
+          <div class="info-val">${escapeHtml(t.end || "--:--")}</div>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Tiempo</span>
+          <div class="info-val">${escapeHtml(t.time || "--:--")}</div>
+        </div>
+        <div class="info-cell info-full">
+          <span class="info-label">Estado</span>
+          <div class="info-val"><span class="badge status-${st}">${statusLabel(st)}</span></div>
+        </div>
+        ${t.comments ? `
+          <div class="info-cell info-full">
+            <span class="info-label">Comentarios</span>
+            <div class="info-val info-comment">${escapeHtml(t.comments)}</div>
+          </div>
+        ` : ""}
+      </div>
+      ${canManageNotes ? `
+        <div class="notes-editor">
+          <div class="notes-editor-title">Notas del empleador</div>
+          <div id="notes-list"></div>
+          <div class="notes-add">
+            <textarea id="note-text" rows="2" placeholder="Escribir nota..."></textarea>
+            <div class="notes-add-row">
+              <label class="inline-radio"><input type="radio" name="note-vis" value="private" checked/> 🔒 Privada</label>
+              <label class="inline-radio"><input type="radio" name="note-vis" value="public"/> 👁 Visible al colaborador</label>
+              <button type="button" class="btn-ok" id="add-note-btn">Agregar nota</button>
+            </div>
+          </div>
+        </div>
+      ` : `
+        <div class="notes-editor">
+          <div class="notes-editor-title">Notas</div>
+          <div id="notes-list"></div>
+        </div>
+      `}
+      <div class="row">
+        <button type="button" class="btn-primary" id="close-dialog">Cerrar</button>
+      </div>
     `;
     document.body.appendChild(dlg);
     dlg.showModal();
 
-    const startEl = dlg.querySelector('[name="start"]');
-    const endEl = dlg.querySelector('[name="end"]');
-    const timeEl = dlg.querySelector("#edit-time");
-    attachTimePicker(startEl);
-    attachTimePicker(endEl);
-
-    if (canManageNotes) {
-      const listEl = dlg.querySelector("#notes-list");
-      const textEl = dlg.querySelector("#note-text");
-      function drawNotes() {
-        const curr = DB.getTasks().find(x => x.id === t.id);
-        const notes = (curr && curr.notes) || [];
-        if (!notes.length) { listEl.innerHTML = `<p class="hint">Aún no hay notas.</p>`; return; }
-        listEl.innerHTML = notes.slice().sort((a,b) => b.createdAt - a.createdAt).map(n => {
-          const a = DB.getUserById(n.authorId);
-          return `
-            <div class="note-row note-${n.visibility}">
-              <div>
-                <div class="note-text">${escapeHtml(n.text)}</div>
-                <div class="note-meta">${n.visibility === "private" ? "🔒 Privada" : "👁 Visible al colaborador"} · ${a ? escapeHtml(a.name) : ""} · ${new Date(n.createdAt).toLocaleString()}</div>
-              </div>
-              <button type="button" class="btn-danger note-del" data-note-del="${n.id}">×</button>
+    const listEl = dlg.querySelector("#notes-list");
+    function drawNotes() {
+      const curr = DB.getTasks().find(x => x.id === t.id);
+      let notes = (curr && curr.notes) || [];
+      // Supervisor/admin/empleador ven todas. Otros (si llegaran) solo las públicas.
+      if (!canManageNotes && user.role !== "supervisor") {
+        notes = notes.filter(n => n.visibility === "public");
+      }
+      if (!notes.length) { listEl.innerHTML = `<p class="hint">Aún no hay notas.</p>`; return; }
+      listEl.innerHTML = notes.slice().sort((a,b) => b.createdAt - a.createdAt).map(n => {
+        const a = DB.getUserById(n.authorId);
+        return `
+          <div class="note-row note-${n.visibility}">
+            <div>
+              <div class="note-text">${escapeHtml(n.text)}</div>
+              <div class="note-meta">${n.visibility === "private" ? "🔒 Privada" : "👁 Visible al colaborador"} · ${a ? escapeHtml(a.name) : ""} · ${new Date(n.createdAt).toLocaleString()}</div>
             </div>
-          `;
-        }).join("");
+            ${canManageNotes ? `<button type="button" class="btn-danger note-del" data-note-del="${n.id}">×</button>` : ""}
+          </div>
+        `;
+      }).join("");
+      if (canManageNotes) {
         listEl.querySelectorAll("[data-note-del]").forEach(b =>
           b.addEventListener("click", () => {
             const curr = DB.getTasks().find(x => x.id === t.id);
             const kept = (curr.notes || []).filter(n => n.id !== b.dataset.noteDel);
             DB.updateTask(t.id, { notes: kept });
             drawNotes();
+            onDone && onDone();
           })
         );
       }
+    }
+    drawNotes();
+
+    if (canManageNotes) {
+      const textEl = dlg.querySelector("#note-text");
       dlg.querySelector("#add-note-btn").addEventListener("click", () => {
         const text = textEl.value.trim();
         if (!text) return;
@@ -395,36 +435,13 @@
         DB.updateTask(t.id, { notes: [...(curr.notes || []), note] });
         textEl.value = "";
         drawNotes();
+        onDone && onDone();
       });
-      drawNotes();
     }
-    function recompute() {
-      const parse = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ""); return m ? +m[1] * 60 + +m[2] : null; };
-      const a = parse(startEl.value), b = parse(endEl.value);
-      if (a === null || b === null) return;
-      let d = b - a; if (d < 0) d += 24 * 60;
-      timeEl.value = String(Math.floor(d / 60)).padStart(2, "0") + ":" + String(d % 60).padStart(2, "0");
-    }
-    startEl.addEventListener("input", recompute);
-    endEl.addEventListener("input", recompute);
 
-    dlg.querySelector("#cancel-edit").addEventListener("click", () => { dlg.close(); dlg.remove(); });
-    dlg.querySelector("#edit-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const status = String(fd.get("status") || "trabajando");
-      DB.updateTask(t.id, {
-        name: String(fd.get("name")).trim(),
-        start: String(fd.get("start") || "").trim(),
-        end: String(fd.get("end") || "").trim(),
-        time: String(fd.get("time")).trim(),
-        comments: String(fd.get("comments") || "").trim(),
-        status,
-        done: status === "realizada",
-      });
-      dlg.close(); dlg.remove();
-      onDone && onDone();
-    });
+    const close = () => { try { dlg.close(); } catch(_){} dlg.remove(); };
+    dlg.querySelector("#close-dialog").addEventListener("click", close);
+    dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
   }
 
   /* =================== SUPERVISOR =================== */
@@ -437,6 +454,12 @@
         <div class="stat"><div class="num">${allTasks.length}</div><div class="lbl">Tareas</div></div>
         <div class="stat"><div class="num">${allTasks.filter(t=>getStatus(t)==="realizada").length}</div><div class="lbl">Realizadas</div></div>
       </div>
+
+      <section class="card">
+        <h3>Calendario del equipo</h3>
+        <div id="sup-calendar"></div>
+      </section>
+
       <section class="card">
         <h3>Consulta de tareas (solo lectura)</h3>
         <div class="filter-bar">
@@ -452,6 +475,10 @@
         <ul class="task-list" id="sup-tasks"></ul>
       </section>
     `;
+
+    renderCalendar(document.getElementById("sup-calendar"), allTasks,
+      { showOwner: true, canEdit: true });
+
     const list = document.getElementById("sup-tasks");
     const sUser = document.getElementById("s-user");
     const sStatus = document.getElementById("s-status");
@@ -461,8 +488,9 @@
       if (sStatus.value) rows = rows.filter(t => getStatus(t) === sStatus.value);
       rows.sort((a,b) => b.updatedAt - a.updatedAt);
       list.innerHTML = rows.length
-        ? rows.map(t => taskCard(t, { showOwner: true })).join("")
+        ? rows.map(t => taskCard(t, { showOwner: true, canEdit: true })).join("")
         : `<li class="empty">Sin tareas para los filtros seleccionados.</li>`;
+      bindTaskActions(list, refresh);
     }
     [sUser, sStatus].forEach(el => el.addEventListener("change", refresh));
     refresh();
@@ -471,12 +499,19 @@
   /* =================== ADMINISTRADOR =================== */
   function renderAdmin() {
     const all = DB.getUsers();
+    const colabIds = new Set(all.filter(u => u.role === "colaborador").map(u => u.id));
+    const teamTasks = DB.getTasks().filter(t => colabIds.has(t.userId));
     panel.innerHTML = `
       <div class="grid-3">
         <div class="stat"><div class="num">${all.length}</div><div class="lbl">Usuarios</div></div>
-        <div class="stat"><div class="num">${all.filter(u=>u.role==='colaborador').length}</div><div class="lbl">Colaboradores</div></div>
+        <div class="stat"><div class="num">${colabIds.size}</div><div class="lbl">Colaboradores</div></div>
         <div class="stat"><div class="num">${DB.getTasks().length}</div><div class="lbl">Tareas totales</div></div>
       </div>
+
+      <section class="card">
+        <h3>Calendario del equipo</h3>
+        <div id="admin-calendar"></div>
+      </section>
 
       <section class="card">
         <h3>Gestión de usuarios</h3>
@@ -490,6 +525,9 @@
         </div>
       </section>
     `;
+
+    renderCalendar(document.getElementById("admin-calendar"), teamTasks,
+      { showOwner: true, canChangeStatus: true, canEdit: true });
     const tbody = document.getElementById("admin-tbody");
     function refresh() {
       const users = DB.getUsers();
@@ -672,7 +710,7 @@
   }
 
   /* =================== Calendario =================== */
-  function renderCalendar(container, tasks) {
+  function renderCalendar(container, tasks, cardOpts = { canChangeStatus: true, canDelete: true }) {
     let viewDate = new Date();
     let selected = null;
 
@@ -742,7 +780,7 @@
         if (!selected) { list.innerHTML = `<li class="empty">Selecciona un día para ver sus tareas.</li>`; return; }
         const dayTasks = tasksByDay[selected] || [];
         if (!dayTasks.length) { list.innerHTML = `<li class="empty">Sin tareas registradas ese día.</li>`; return; }
-        list.innerHTML = dayTasks.map(t => taskCard(t, { canChangeStatus: true })).join("");
+        list.innerHTML = dayTasks.map(t => taskCard(t, cardOpts)).join("");
         bindTaskActions(list, () => render());
       }
     }
