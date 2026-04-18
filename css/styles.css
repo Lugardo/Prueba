@@ -731,9 +731,12 @@ tr.row-status-rejected { opacity: 0.65; }
 .pending-card .pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .pending-card .pending-actions button { padding: 9px 14px; }
 @media (max-width: 720px) {
-  .pending-card { flex-direction: column; align-items: stretch; }
-  .pending-card .pending-actions { width: 100%; }
-  .pending-card .pending-actions button { flex: 1; }
+  .pending-card { flex-direction: column; align-items: stretch; padding: 12px; gap: 8px; }
+  .pending-card .pending-name { font-size: 0.95rem; }
+  .pending-card .pending-meta { gap: 4px 10px; font-size: 0.78rem; word-break: break-word; }
+  .pending-card .pending-meta span { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+  .pending-card .pending-actions { width: 100%; gap: 6px; }
+  .pending-card .pending-actions button { flex: 1; padding: 10px; font-size: 0.88rem; }
 }
 
 .badge.colaborador { background: rgba(79,225,167,0.18); color: var(--ok); }
@@ -1283,33 +1286,62 @@ dialog.task-details-dialog { max-width: 520px; }
     border: 1px solid rgba(138,212,255,0.15);
     border-radius: 12px;
     padding: 12px 14px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
+  .table-wrap tr.row-status-inactive,
+  .table-wrap tr.row-status-rejected { border-left: 3px solid var(--danger); }
+  .table-wrap tr.row-status-pending { border-left: 3px solid var(--warn); }
   .table-wrap tr:hover { background: rgba(2,8,33,0.65); }
   .table-wrap td {
     border: none;
-    padding: 6px 0;
+    padding: 7px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
     font-size: 0.88rem;
     color: var(--blue-100);
+    min-width: 0;
   }
   .table-wrap td + td { border-top: 1px dashed rgba(138,212,255,0.1); }
   .table-wrap td::before {
     content: attr(data-label);
-    flex: 0 0 90px;
+    flex: 0 0 82px;
     color: var(--blue-300);
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     letter-spacing: 1px;
     text-transform: uppercase;
     font-weight: 600;
   }
-  .table-wrap td.cell-actions { flex-direction: column; align-items: stretch; gap: 8px; }
-  .table-wrap td.cell-actions::before { margin-bottom: 4px; }
-  .table-wrap td.cell-actions button { width: 100%; padding: 9px 10px; font-size: 0.85rem; }
-  .table-wrap td.cell-actions em { text-align: center; padding: 6px 0; }
+  /* El valor puede crecer, hacer wrap y truncar emails largos */
+  .table-wrap td > :not(::before) { text-align: right; }
+  .table-wrap td:not(.cell-actions) {
+    word-break: break-word;
+  }
+
+  /* Acciones en rejilla 2-col para que quepan cómodas */
+  .table-wrap td.cell-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding-top: 10px;
+  }
+  .table-wrap td.cell-actions::before {
+    grid-column: 1 / -1;
+    flex: none;
+    margin-bottom: 2px;
+  }
+  .table-wrap td.cell-actions button {
+    width: 100%;
+    padding: 9px 6px;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+  .table-wrap td.cell-actions em {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4px 0;
+  }
 
   /* Time picker: columnas apiladas, rejilla más pequeña */
   dialog.time-picker-dialog { padding: 16px; }
