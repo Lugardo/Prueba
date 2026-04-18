@@ -45,8 +45,35 @@
               <input name="name" required placeholder="Ej. Calibrar telescopio" />
             </label>
             <label><span>Tiempo (HH:MM)</span>
-              <input name="time" required placeholder="01:30" pattern="^\\d{1,2}:\\d{2}$" />
+              <div class="time-wrap">
+                <input name="time" id="time-input" required placeholder="01:30" pattern="^\\d{1,2}:\\d{2}$" />
+                <button type="button" class="calc-toggle" id="calc-toggle" title="Calculadora de tiempo">🧮</button>
+              </div>
             </label>
+          </div>
+
+          <div class="time-calc" id="time-calc" hidden>
+            <div class="calc-head">
+              <strong>Calculadora de tiempo</strong>
+              <span class="calc-total" id="calc-total">00:00</span>
+            </div>
+            <div class="calc-grid">
+              <label><span>Horas</span>
+                <input type="number" min="0" step="1" id="calc-h" placeholder="0" />
+              </label>
+              <label><span>Minutos</span>
+                <input type="number" min="0" step="1" id="calc-m" placeholder="0" />
+              </label>
+              <label><span>Segundos</span>
+                <input type="number" min="0" step="1" id="calc-s" placeholder="0" />
+              </label>
+            </div>
+            <div class="calc-actions">
+              <button type="button" class="btn-ghost" id="calc-add">Sumar</button>
+              <button type="button" class="btn-ghost" id="calc-sub">Restar</button>
+              <button type="button" class="btn-danger" id="calc-clear">Limpiar</button>
+            </div>
+            <p class="hint">Cada vez que sumas/restas, el total se escribe automáticamente en el campo de tiempo en formato HH:MM.</p>
           </div>
           <label><span>Comentarios</span>
             <textarea name="comments" rows="3" placeholder="Detalles de la tarea..."></textarea>
@@ -75,6 +102,8 @@
       render();
     });
 
+    setupTimeCalculator();
+
     const list = document.getElementById("my-tasks");
     if (!tasks.length) {
       list.innerHTML = `<li class="empty">Aún no has reportado tareas hoy.</li>`;
@@ -89,6 +118,72 @@
         if (confirm("¿Eliminar esta tarea?")) { DB.deleteTask(b.dataset.del); render(); }
       })
     );
+  }
+
+  /* Calculadora de tiempo: convierte h/m/s a minutos, opera y formatea HH:MM */
+  function setupTimeCalculator() {
+    const timeInput = document.getElementById("time-input");
+    const toggle = document.getElementById("calc-toggle");
+    const box = document.getElementById("time-calc");
+    const total = document.getElementById("calc-total");
+    const h = document.getElementById("calc-h");
+    const m = document.getElementById("calc-m");
+    const s = document.getElementById("calc-s");
+    let totalMin = parseHHMMToMinutes(timeInput.value);
+
+    function parseHHMMToMinutes(str) {
+      const match = /^(\d{1,2}):(\d{2})$/.exec(String(str || "").trim());
+      if (!match) return 0;
+      return (parseInt(match[1], 10) || 0) * 60 + (parseInt(match[2], 10) || 0);
+    }
+    function formatHHMM(totalMinutes) {
+      const mins = Math.max(0, Math.round(totalMinutes));
+      const hh = Math.floor(mins / 60);
+      const mm = mins % 60;
+      return String(hh).padStart(2, "0") + ":" + String(mm).padStart(2, "0");
+    }
+    function readInputMinutes() {
+      const hv = parseFloat(h.value) || 0;
+      const mv = parseFloat(m.value) || 0;
+      const sv = parseFloat(s.value) || 0;
+      return hv * 60 + mv + sv / 60;
+    }
+    function render() {
+      total.textContent = formatHHMM(totalMin);
+      timeInput.value = formatHHMM(totalMin);
+    }
+    function resetInputs() { h.value = m.value = s.value = ""; }
+
+    toggle.addEventListener("click", () => {
+      box.hidden = !box.hidden;
+      if (!box.hidden) {
+        totalMin = parseHHMMToMinutes(timeInput.value);
+        render();
+        h.focus();
+      }
+    });
+
+    document.getElementById("calc-add").addEventListener("click", () => {
+      totalMin += readInputMinutes();
+      if (totalMin < 0) totalMin = 0;
+      resetInputs(); render();
+    });
+    document.getElementById("calc-sub").addEventListener("click", () => {
+      totalMin -= readInputMinutes();
+      if (totalMin < 0) totalMin = 0;
+      resetInputs(); render();
+    });
+    document.getElementById("calc-clear").addEventListener("click", () => {
+      totalMin = 0; resetInputs(); render();
+    });
+
+    // Enter en cualquier campo = Sumar
+    [h, m, s].forEach(el => el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("calc-add").click(); }
+    }));
+
+    // Si el usuario teclea manualmente el tiempo, sincronizamos el total
+    timeInput.addEventListener("input", () => { totalMin = parseHHMMToMinutes(timeInput.value); total.textContent = formatHHMM(totalMin); });
   }
 
   function taskCard(t, opts = {}) {
