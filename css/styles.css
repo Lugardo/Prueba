@@ -447,6 +447,70 @@ body { background: transparent; }
 }
 .topbar-left, .topbar-right { display: flex; align-items: center; gap: 14px; }
 .topbar h2 { margin: 0; font-size: 1.1rem; color: #fff; }
+
+/* Hamburger button (oculto en escritorio) */
+.hamburger {
+  display: none;
+  background: rgba(61,139,255,0.15);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  width: 46px;
+  height: 46px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.hamburger:hover { background: rgba(61,139,255,0.32); box-shadow: 0 0 14px rgba(61,139,255,0.35); }
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--blue-100);
+  border-radius: 2px;
+  transition: transform 0.28s ease, opacity 0.2s ease;
+  transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 720px) {
+  .topbar { padding: 14px 16px; flex-wrap: nowrap; gap: 10px; }
+  .topbar-left { gap: 10px; min-width: 0; flex: 1; }
+  .topbar h2 { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-tag { font-size: 0.65rem; }
+  .logo-img.logo-sm { width: 130px; height: 32px; }
+  .hamburger { display: flex; flex-shrink: 0; }
+  .topbar-right {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    background: rgba(2,8,33,0.95);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 16px 18px;
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+  .topbar-right.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .topbar-right .user-chip { width: 100%; justify-content: flex-start; }
+  .topbar-right #logout-btn { width: 100%; padding: 10px 14px; }
+}
 .role-tag {
   margin: 2px 0 0;
   font-size: 0.75rem;

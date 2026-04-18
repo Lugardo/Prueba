@@ -15,6 +15,28 @@
     window.location.href = "index.html";
   });
 
+  // Menú hamburguesa responsive
+  const hamburger = document.getElementById("hamburger");
+  const topbarRight = document.getElementById("topbar-right");
+  if (hamburger && topbarRight) {
+    const closeMenu = () => {
+      hamburger.classList.remove("open");
+      topbarRight.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    };
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = !hamburger.classList.contains("open");
+      hamburger.classList.toggle("open", open);
+      topbarRight.classList.toggle("open", open);
+      hamburger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("click", (e) => {
+      if (!topbarRight.contains(e.target) && !hamburger.contains(e.target)) closeMenu();
+    });
+    window.addEventListener("resize", () => { if (window.innerWidth > 720) closeMenu(); });
+  }
+
   const panel = document.getElementById("panel");
 
   const STATUSES = [
