@@ -231,16 +231,19 @@
         }).join("")}
       </div>
     ` : "";
+    const d = new Date(t.updatedAt);
+    const shortDate = d.toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+    const shortTime = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
     return `
       <li class="task-item status-bar-${st}">
-        <div>
+        <div class="task-body">
           <div class="task-name">${escapeHtml(t.name)}</div>
           <div class="task-meta">
-            <span>⏱ ${escapeHtml(t.time || "--:--")}</span>
-            ${t.start || t.end ? `<span>🕒 ${escapeHtml(t.start || "--:--")} → ${escapeHtml(t.end || "--:--")}</span>` : ""}
+            <span class="meta-time">⏱ ${escapeHtml(t.time || "--:--")}</span>
+            ${t.start || t.end ? `<span class="meta-range">🕒 ${escapeHtml(t.start || "--:--")} → ${escapeHtml(t.end || "--:--")}</span>` : ""}
             ${statusCtrl}
-            ${opts.showOwner && owner ? `<span>👤 ${escapeHtml(owner.name)}</span>` : ""}
-            <span>🗓 ${new Date(t.updatedAt).toLocaleString()}</span>
+            ${opts.showOwner && owner ? `<span class="meta-owner">👤 ${escapeHtml(owner.name)}</span>` : ""}
+            <span class="meta-date">🗓 ${shortDate} · ${shortTime}</span>
           </div>
           ${t.comments ? `<div class="task-comment">${escapeHtml(t.comments)}</div>` : ""}
           ${notesHtml}

@@ -1033,10 +1033,24 @@ dialog .row { justify-content: flex-end; margin-top: 14px; }
   .panel > .grid-3:first-child .stat .lbl { font-size: 0.65rem; letter-spacing: 0.5px; }
 
   /* Task items: apilar contenido y acciones */
-  .task-item { grid-template-columns: 1fr; padding: 12px; }
+  .task-item { grid-template-columns: 1fr; padding: 12px; gap: 10px; border-left-width: 4px; }
+  .task-item .task-body { min-width: 0; }
+  .task-item .task-name { font-size: 0.95rem; line-height: 1.3; word-break: break-word; }
   .task-item .task-actions { flex-direction: row; flex-wrap: wrap; align-items: stretch; align-self: stretch; gap: 8px; }
-  .task-item .task-actions > * { flex: 1 1 auto; }
-  .task-meta { gap: 6px 8px; font-size: 0.75rem; }
+  .task-item .task-actions > * { flex: 1 1 auto; padding: 9px 12px; font-size: 0.85rem; }
+
+  .task-meta { gap: 5px 6px; font-size: 0.72rem; line-height: 1.5; }
+  .task-meta span { padding: 3px 8px; line-height: 1.2; }
+  .task-meta .status-select { padding: 4px 10px; font-size: 0.72rem; min-height: 26px; }
+  .task-meta .meta-owner,
+  .task-meta .meta-range { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task-comment { font-size: 0.85rem; line-height: 1.4; word-break: break-word; }
+
+  /* Notas: pill que se acomoda al ancho disponible */
+  .task-notes { gap: 5px; }
+  .note-pill { font-size: 0.78rem; padding: 6px 10px; flex-wrap: wrap; }
+  .note-pill .note-text { flex: 1 1 100%; }
+  .note-pill .note-meta { font-size: 0.68rem; white-space: normal; }
 
   /* Barra de filtros a ancho completo */
   .filter-bar { flex-direction: column; align-items: stretch; }
@@ -1090,4 +1104,9 @@ dialog .row { justify-content: flex-end; margin-top: 14px; }
   .cal-cell { min-height: 44px; padding: 3px; }
   .cal-num { font-size: 0.72rem; }
   .cal-dot { width: 6px; height: 6px; }
+
+  /* En pantallas muy chicas, la fecha de la tarea se oculta para liberar espacio */
+  .task-meta .meta-date { display: none; }
+  .task-meta { gap: 4px 6px; }
+  .task-item .task-actions > * { font-size: 0.8rem; padding: 8px 10px; }
 }
