@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reportes · Control de Tareas Diarias</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="dashboard-body">
+  <div class="space-bg">
+    <div class="stars"></div>
+    <div class="stars stars-2"></div>
+    <div class="stars stars-3"></div>
+    <span class="twinkle" style="top:10%; left:20%; animation-delay:0s"></span>
+    <span class="twinkle" style="top:18%; left:68%; animation-delay:2.2s"></span>
+    <span class="twinkle" style="top:34%; left:88%; animation-delay:4.1s"></span>
+    <span class="twinkle" style="top:58%; left:12%; animation-delay:1.3s"></span>
+    <span class="twinkle" style="top:72%; left:80%; animation-delay:3.7s"></span>
+    <span class="twinkle" style="top:86%; left:40%; animation-delay:5.5s"></span>
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    <div class="comet comet-3"></div>
+    <div class="comet comet-4"></div>
+    <div class="comet comet-5"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo logo-sm logo-img" aria-hidden="true">
+        <img src="asterlogoblanco.png" alt="Asterlogo" />
+      </div>
+      <div class="brand-text">
+        <h2>Reportes de tareas</h2>
+        <p class="role-tag" id="role-tag">—</p>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-right" id="topbar-right">
+      <a href="dashboard.html" class="btn-ghost">← Panel</a>
+      <button class="btn-ghost" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="card">
+      <h3>Filtros</h3>
+      <div class="rep-filters">
+        <label><span>Colaborador</span>
+          <select id="rep-user">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label><span>Estado</span>
+          <select id="rep-status">
+            <option value="">Cualquiera</option>
+          </select>
+        </label>
+        <label><span>Desde</span><input type="date" id="rep-from"/></label>
+        <label><span>Hasta</span><input type="date" id="rep-to"/></label>
+        <input type="text" id="rep-text" placeholder="🔎 Buscar en tarea o comentario" />
+      </div>
+      <div class="rep-presets">
+        <button type="button" class="btn-ghost" data-preset="today">Hoy</button>
+        <button type="button" class="btn-ghost" data-preset="yesterday">Ayer</button>
+        <button type="button" class="btn-ghost" data-preset="week">Esta semana</button>
+        <button type="button" class="btn-ghost" data-preset="month">Este mes</button>
+        <button type="button" class="btn-ghost" data-preset="clear">Limpiar</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Resumen</h3>
+      <div class="grid-3">
+        <div class="stat"><div class="num" id="rep-stat-count">0</div><div class="lbl">Tareas</div></div>
+        <div class="stat"><div class="num" id="rep-stat-hours">0h 00m</div><div class="lbl">Horas trabajadas</div></div>
+        <div class="stat"><div class="num" id="rep-stat-done">0</div><div class="lbl">Realizadas</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="rep-toolbar">
+        <h3>Resultados</h3>
+        <div class="rep-actions">
+          <button class="btn-ok" id="rep-export-csv">📥 Exportar CSV</button>
+          <button class="btn-ghost" id="rep-print">🖨 Imprimir</button>
+        </div>
+      </div>
+      <div class="table-wrap rep-table-wrap">
+        <table class="rep-table">
+          <thead>
+            <tr>
+              <th data-sort="userName">Colaborador</th>
+              <th data-sort="name">Tarea</th>
+              <th data-sort="start">Inicio</th>
+              <th data-sort="end">Fin</th>
+              <th data-sort="timeMinutes">Tiempo</th>
+              <th data-sort="status">Estado</th>
+              <th data-sort="createdAt">Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="rep-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

@@ -267,6 +267,14 @@
         <div class="stat"><div class="num">${allTasks.filter(t=>getStatus(t)==="realizada").length}</div><div class="lbl">Realizadas</div></div>
       </div>
 
+      <section class="card reports-banner">
+        <div>
+          <h3>Reportes</h3>
+          <p>Filtra, ordena y exporta tareas (CSV o imprimir).</p>
+        </div>
+        <a href="reports.html" class="btn-primary">Ir a reportes →</a>
+      </section>
+
       <section class="card">
         <h3>Calendario del equipo</h3>
         <div id="emp-calendar"></div>
@@ -455,6 +463,14 @@
         <div class="stat"><div class="num">${allTasks.filter(t=>getStatus(t)==="realizada").length}</div><div class="lbl">Realizadas</div></div>
       </div>
 
+      <section class="card reports-banner">
+        <div>
+          <h3>Reportes</h3>
+          <p>Consulta, filtra, ordena y exporta las tareas del equipo.</p>
+        </div>
+        <a href="reports.html" class="btn-primary">Ir a reportes →</a>
+      </section>
+
       <section class="card">
         <h3>Calendario del equipo</h3>
         <div id="sup-calendar"></div>
@@ -508,6 +524,14 @@
         <div class="stat"><div class="num">${pending.length}</div><div class="lbl">Pendientes</div></div>
         <div class="stat"><div class="num">${DB.getTasks().length}</div><div class="lbl">Tareas totales</div></div>
       </div>
+
+      <section class="card reports-banner">
+        <div>
+          <h3>Reportes</h3>
+          <p>Panel dedicado para filtrar, ordenar y exportar tareas.</p>
+        </div>
+        <a href="reports.html" class="btn-primary">Ir a reportes →</a>
+      </section>
 
       <section class="card">
         <h3>Solicitudes de registro</h3>
