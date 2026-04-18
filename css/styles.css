@@ -132,11 +132,11 @@ body { background: transparent; }
   transform: translateY(-50%);
   border-radius: 2px;
 }
-.comet-1 { animation: cometA 11s ease-in infinite; animation-delay: 1s; }
-.comet-2 { animation: cometB 14s ease-in infinite; animation-delay: 5s; }
-.comet-3 { animation: cometC 17s ease-in infinite; animation-delay: 9s; }
-.comet-4 { animation: cometD 13s ease-in infinite; animation-delay: 12s; }
-.comet-5 { animation: cometE 19s ease-in infinite; animation-delay: 16s; }
+.comet-1 { animation: cometA 45s ease-in infinite; animation-delay:  3s; }
+.comet-2 { animation: cometB 52s ease-in infinite; animation-delay: 14s; }
+.comet-3 { animation: cometC 60s ease-in infinite; animation-delay: 28s; }
+.comet-4 { animation: cometD 48s ease-in infinite; animation-delay: 42s; }
+.comet-5 { animation: cometE 65s ease-in infinite; animation-delay: 56s; }
 
 /* La cola se dibuja hacia +X desde la cabeza.
    Para que "persiga" al cometa, rotamos en la dirección OPUESTA al movimiento:
@@ -202,9 +202,9 @@ body { background: transparent; }
   animation: bob 5s ease-in-out infinite;
 }
 .logo svg, .logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.logo-sm { width: 50px; height: 50px; margin: 0; }
-.logo-img { width: 220px; height: 220px; max-width: 60vw; max-height: 28vh; }
-.logo-img.logo-sm { width: 50px; height: 50px; max-width: none; max-height: none; }
+.logo-sm { margin: 0; }
+.logo-img { width: 400px; height: 100px; max-width: 90vw; }
+.logo-img.logo-sm { width: 200px; height: 50px; max-width: none; max-height: none; }
 @keyframes bob {
   0%,100% { transform: translateY(-4px); }
   50%     { transform: translateY(4px); }
