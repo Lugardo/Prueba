@@ -1057,10 +1057,46 @@ dialog .row { justify-content: flex-end; margin-top: 14px; }
   .filter-bar select,
   .filter-bar input { width: 100%; }
 
-  /* Tabla del admin con scroll horizontal */
-  .table-wrap { overflow-x: auto; margin: 0 -14px; padding: 0 14px; }
-  .table-wrap table { min-width: 620px; }
-  .card th, .card td { padding: 8px 10px; font-size: 0.85rem; }
+  /* Admin: la tabla se convierte en tarjetas apiladas */
+  .table-wrap { overflow: visible; margin: 0; padding: 0; }
+  .table-wrap table,
+  .table-wrap thead,
+  .table-wrap tbody,
+  .table-wrap tr,
+  .table-wrap td { display: block; width: 100%; }
+  .table-wrap thead { display: none; }
+  .table-wrap tr {
+    background: rgba(2,8,33,0.55);
+    border: 1px solid rgba(138,212,255,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .table-wrap tr:hover { background: rgba(2,8,33,0.65); }
+  .table-wrap td {
+    border: none;
+    padding: 6px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--blue-100);
+  }
+  .table-wrap td + td { border-top: 1px dashed rgba(138,212,255,0.1); }
+  .table-wrap td::before {
+    content: attr(data-label);
+    flex: 0 0 90px;
+    color: var(--blue-300);
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .table-wrap td.cell-actions { flex-direction: column; align-items: stretch; gap: 8px; }
+  .table-wrap td.cell-actions::before { margin-bottom: 4px; }
+  .table-wrap td.cell-actions button { width: 100%; padding: 9px 10px; font-size: 0.85rem; }
+  .table-wrap td.cell-actions em { text-align: center; padding: 6px 0; }
 
   /* Time picker: columnas apiladas, rejilla más pequeña */
   dialog.time-picker-dialog { padding: 16px; }

@@ -495,12 +495,12 @@
       const users = DB.getUsers();
       tbody.innerHTML = users.map(u => `
         <tr>
-          <td>@${escapeHtml(u.username)}</td>
-          <td>${escapeHtml(u.name)}</td>
-          <td>${escapeHtml(u.email)}</td>
-          <td>${escapeHtml(u.phone)}</td>
-          <td><span class="badge ${u.role}">${u.role}</span></td>
-          <td>
+          <td data-label="Usuario">@${escapeHtml(u.username)}</td>
+          <td data-label="Nombre">${escapeHtml(u.name)}</td>
+          <td data-label="Correo">${escapeHtml(u.email)}</td>
+          <td data-label="Teléfono">${escapeHtml(u.phone)}</td>
+          <td data-label="Rol"><span class="badge ${u.role}">${u.role}</span></td>
+          <td data-label="Acciones" class="cell-actions">
             <button class="btn-ghost" data-reset="${u.id}">Restablecer</button>
             <button class="btn-ghost" data-role="${u.id}">Cambiar rol</button>
             ${u.id !== user.id ? `<button class="btn-danger" data-drop="${u.id}">Eliminar</button>` : `<em style="opacity:.6">tú</em>`}
