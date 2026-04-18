@@ -477,12 +477,14 @@
 
       <section class="card">
         <h3>Gestión de usuarios</h3>
-        <table>
-          <thead>
-            <tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Rol</th><th>Acciones</th></tr>
-          </thead>
-          <tbody id="admin-tbody"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Rol</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="admin-tbody"></tbody>
+          </table>
+        </div>
       </section>
     `;
     const tbody = document.getElementById("admin-tbody");

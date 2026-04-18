@@ -1018,3 +1018,76 @@ dialog {
 dialog::backdrop { background: rgba(2,8,33,0.7); backdrop-filter: blur(4px); }
 dialog h3 { margin-top: 0; color: #fff; }
 dialog .row { justify-content: flex-end; margin-top: 14px; }
+
+/* ================= Responsive: dashboard mobile ================= */
+@media (max-width: 720px) {
+  .dashboard { margin: 16px auto; padding: 0 12px; }
+  .panel { gap: 14px; }
+  .card { padding: 14px; border-radius: 14px; }
+  .card h3 { font-size: 1rem; margin-bottom: 10px; }
+
+  /* Stats compactos: 3 en fila, columnas iguales más pequeñas */
+  .panel > .grid-3:first-child { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .panel > .grid-3:first-child .stat { padding: 10px 6px; }
+  .panel > .grid-3:first-child .stat .num { font-size: 1.25rem; }
+  .panel > .grid-3:first-child .stat .lbl { font-size: 0.65rem; letter-spacing: 0.5px; }
+
+  /* Task items: apilar contenido y acciones */
+  .task-item { grid-template-columns: 1fr; padding: 12px; }
+  .task-item .task-actions { flex-direction: row; flex-wrap: wrap; align-items: stretch; align-self: stretch; gap: 8px; }
+  .task-item .task-actions > * { flex: 1 1 auto; }
+  .task-meta { gap: 6px 8px; font-size: 0.75rem; }
+
+  /* Barra de filtros a ancho completo */
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar select,
+  .filter-bar input { width: 100%; }
+
+  /* Tabla del admin con scroll horizontal */
+  .table-wrap { overflow-x: auto; margin: 0 -14px; padding: 0 14px; }
+  .table-wrap table { min-width: 620px; }
+  .card th, .card td { padding: 8px 10px; font-size: 0.85rem; }
+
+  /* Time picker: columnas apiladas, rejilla más pequeña */
+  dialog.time-picker-dialog { padding: 16px; }
+  .tp-clock { font-size: 2.4rem; letter-spacing: 2px; }
+  .tp-cols { grid-template-columns: 1fr; gap: 10px; }
+  .tp-col-grid { max-height: 160px; grid-template-columns: repeat(6, 1fr); }
+  .tp-actions { flex-direction: column-reverse; gap: 8px; }
+  .tp-actions button { width: 100%; padding: 12px; }
+
+  /* Diálogos generales */
+  dialog { padding: 16px; border-radius: 14px; width: 94%; }
+  dialog .grid-3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+  dialog .row { justify-content: stretch; flex-direction: column-reverse; }
+  dialog .row > button { width: 100%; }
+
+  /* Notas */
+  .note-row { flex-direction: column; align-items: stretch; gap: 6px; }
+  .note-row .note-del { align-self: flex-end; padding: 4px 12px; }
+  .notes-add-row { flex-direction: column; align-items: stretch; }
+  .notes-add-row .inline-radio { padding: 4px 0; }
+  .notes-add-row .btn-ok { margin-left: 0; width: 100%; }
+
+  /* Calendario: texto y chip de conteo menor */
+  .cal-weekdays span { font-size: 0.62rem; padding: 2px 0; }
+  .cal-count { font-size: 0.58rem; padding: 1px 5px; top: 3px; right: 4px; }
+  .cal-cell { gap: 2px; min-height: 52px; padding: 5px; }
+  .cal-legend { gap: 8px; font-size: 0.72rem; }
+}
+
+@media (max-width: 420px) {
+  /* Logo del topbar aún más compacto */
+  .logo-img.logo-sm { width: 108px; height: 28px; }
+  .topbar h2 { font-size: 0.82rem; }
+  .role-tag { font-size: 0.6rem; letter-spacing: 1px; }
+
+  /* 2 stats por fila se leen mejor que 3 en pantallas muy chicas */
+  .panel > .grid-3:first-child { grid-template-columns: repeat(2, 1fr); }
+  .panel > .grid-3:first-child .stat:nth-child(3) { grid-column: 1 / -1; }
+
+  /* Calendario más denso */
+  .cal-cell { min-height: 44px; padding: 3px; }
+  .cal-num { font-size: 0.72rem; }
+  .cal-dot { width: 6px; height: 6px; }
+}
