@@ -1,27 +1,40 @@
 /* Funciones de autenticación compartidas */
 (function (global) {
+  function generateUsername(name, email) {
+    const base = (email.split("@")[0] || name || "usuario")
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, "")
+      .slice(0, 20) || "usuario";
+    let candidate = base;
+    let i = 1;
+    while (DB.getUserByUsername(candidate)) {
+      candidate = `${base}${i++}`;
+      if (i > 9999) { candidate = base + Date.now().toString(36); break; }
+    }
+    return candidate;
+  }
+
   const Auth = {
-    login(username, password) {
-      const user = DB.getUserByUsername(username);
+    login(identifier, password) {
+      const user = DB.getUserByIdentifier(identifier);
       if (!user || user.password !== password) return { ok: false, error: "Usuario o contraseña incorrectos." };
       DB.setSession({ userId: user.id });
       return { ok: true, user };
     },
 
     register(data) {
-      if (!data.username || !data.password || !data.name || !data.email || !data.phone || !data.role)
+      if (!data.password || !data.name || !data.email || !data.phone)
         return { ok: false, error: "Faltan campos obligatorios." };
-      if (DB.getUserByUsername(data.username))
-        return { ok: false, error: "Ese usuario ya está registrado." };
-      const exists = DB.getUsers().find(u => u.email.toLowerCase() === data.email.toLowerCase());
-      if (exists) return { ok: false, error: "Ese correo ya está registrado." };
+      const email = data.email.trim().toLowerCase();
+      if (DB.getUsers().find(u => u.email.toLowerCase() === email))
+        return { ok: false, error: "Ese correo ya está registrado." };
       const user = DB.addUser({
         name: data.name.trim(),
         phone: data.phone.trim(),
         email: data.email.trim(),
-        username: data.username.trim(),
+        username: generateUsername(data.name, email),
         password: data.password,
-        role: data.role,
+        role: "colaborador",
         avatar: data.avatar || "",
       });
       DB.setSession({ userId: user.id });

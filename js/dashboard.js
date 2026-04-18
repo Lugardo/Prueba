@@ -192,6 +192,23 @@
     const statusCtrl = opts.canChangeStatus
       ? `<select class="status-select" data-status="${t.id}">${statusOptions(st)}</select>`
       : `<span class="badge status-${st}">${statusLabel(st)}</span>`;
+    const notes = (t.notes || []).filter(n =>
+      user.role === "colaborador" ? n.visibility === "public" : true
+    );
+    const notesHtml = notes.length ? `
+      <div class="task-notes">
+        ${notes.map(n => {
+          const author = DB.getUserById(n.authorId);
+          return `
+            <div class="note-pill note-${n.visibility}">
+              <span class="note-icon">${n.visibility === "private" ? "🔒" : "📝"}</span>
+              <span class="note-text">${escapeHtml(n.text)}</span>
+              <span class="note-meta">${author ? escapeHtml(author.name) : ""}${n.visibility === "private" ? " · privada" : ""}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    ` : "";
     return `
       <li class="task-item status-bar-${st}">
         <div>
@@ -204,6 +221,7 @@
             <span>🗓 ${new Date(t.updatedAt).toLocaleString()}</span>
           </div>
           ${t.comments ? `<div class="task-comment">${escapeHtml(t.comments)}</div>` : ""}
+          ${notesHtml}
         </div>
         <div class="task-actions">
           ${opts.canEdit ? `<button class="btn-ghost" data-edit="${t.id}">Editar</button>` : ""}
@@ -272,6 +290,7 @@
     const t = DB.getTasks().find(x => x.id === id);
     if (!t) return;
     const dlg = document.createElement("dialog");
+    const canManageNotes = user.role === "empleador" || user.role === "administrador";
     dlg.innerHTML = `
       <h3>Editar tarea</h3>
       <form method="dialog" id="edit-form">
@@ -285,6 +304,20 @@
         <label><span>Estado</span>
           <select name="status">${statusOptions(getStatus(t))}</select>
         </label>
+        ${canManageNotes ? `
+          <div class="notes-editor">
+            <div class="notes-editor-title">Notas</div>
+            <div id="notes-list"></div>
+            <div class="notes-add">
+              <textarea id="note-text" rows="2" placeholder="Escribir nota..."></textarea>
+              <div class="notes-add-row">
+                <label class="inline-radio"><input type="radio" name="note-vis" value="private" checked/> 🔒 Privada</label>
+                <label class="inline-radio"><input type="radio" name="note-vis" value="public"/> 👁 Visible al colaborador</label>
+                <button type="button" class="btn-ok" id="add-note-btn">Agregar nota</button>
+              </div>
+            </div>
+          </div>
+        ` : ""}
         <div class="row">
           <button type="button" class="btn-ghost" id="cancel-edit">Cancelar</button>
           <button type="submit" class="btn-primary">Guardar</button>
@@ -299,6 +332,47 @@
     const timeEl = dlg.querySelector("#edit-time");
     attachTimePicker(startEl);
     attachTimePicker(endEl);
+
+    if (canManageNotes) {
+      const listEl = dlg.querySelector("#notes-list");
+      const textEl = dlg.querySelector("#note-text");
+      function drawNotes() {
+        const curr = DB.getTasks().find(x => x.id === t.id);
+        const notes = (curr && curr.notes) || [];
+        if (!notes.length) { listEl.innerHTML = `<p class="hint">Aún no hay notas.</p>`; return; }
+        listEl.innerHTML = notes.slice().sort((a,b) => b.createdAt - a.createdAt).map(n => {
+          const a = DB.getUserById(n.authorId);
+          return `
+            <div class="note-row note-${n.visibility}">
+              <div>
+                <div class="note-text">${escapeHtml(n.text)}</div>
+                <div class="note-meta">${n.visibility === "private" ? "🔒 Privada" : "👁 Visible al colaborador"} · ${a ? escapeHtml(a.name) : ""} · ${new Date(n.createdAt).toLocaleString()}</div>
+              </div>
+              <button type="button" class="btn-danger note-del" data-note-del="${n.id}">×</button>
+            </div>
+          `;
+        }).join("");
+        listEl.querySelectorAll("[data-note-del]").forEach(b =>
+          b.addEventListener("click", () => {
+            const curr = DB.getTasks().find(x => x.id === t.id);
+            const kept = (curr.notes || []).filter(n => n.id !== b.dataset.noteDel);
+            DB.updateTask(t.id, { notes: kept });
+            drawNotes();
+          })
+        );
+      }
+      dlg.querySelector("#add-note-btn").addEventListener("click", () => {
+        const text = textEl.value.trim();
+        if (!text) return;
+        const vis = dlg.querySelector('[name="note-vis"]:checked').value;
+        const curr = DB.getTasks().find(x => x.id === t.id);
+        const note = { id: uid(), authorId: user.id, text, visibility: vis, createdAt: Date.now() };
+        DB.updateTask(t.id, { notes: [...(curr.notes || []), note] });
+        textEl.value = "";
+        drawNotes();
+      });
+      drawNotes();
+    }
     function recompute() {
       const parse = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ""); return m ? +m[1] * 60 + +m[2] : null; };
       const a = parse(startEl.value), b = parse(endEl.value);
@@ -492,12 +566,15 @@
   function attachTimePicker(input) {
     input.readOnly = true;
     input.classList.add("time-field");
-    const open = (e) => { e && e.preventDefault(); openTimePicker(input); };
-    input.addEventListener("click", open);
-    input.addEventListener("focus", open);
+    input.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (input._picking) return;
+      input._picking = true;
+      openTimePicker(input, () => { input._picking = false; });
+    });
   }
 
-  function openTimePicker(input) {
+  function openTimePicker(input, onClose) {
     const pad = n => String(n).padStart(2, "0");
     const now = new Date();
     const match = /^(\d{1,2}):(\d{2})$/.exec(input.value || "");
@@ -552,7 +629,11 @@
       setH(n.getHours());
       setM(Math.round(n.getMinutes() / 5) * 5 % 60);
     });
-    const close = () => { dlg.close(); dlg.remove(); };
+    const close = () => {
+      try { dlg.close(); } catch (_) {}
+      dlg.remove();
+      if (typeof onClose === "function") onClose();
+    };
     dlg.querySelector("#tp-cancel").addEventListener("click", close);
     dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
     dlg.querySelector("#tp-ok").addEventListener("click", () => {

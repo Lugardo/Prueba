@@ -11,31 +11,31 @@
     <div class="stars"></div>
     <div class="stars stars-2"></div>
     <div class="stars stars-3"></div>
+    <span class="twinkle" style="top:8%;  left:18%; animation-delay:0s"></span>
+    <span class="twinkle" style="top:14%; left:62%; animation-delay:1.6s"></span>
+    <span class="twinkle" style="top:22%; left:86%; animation-delay:3.1s"></span>
+    <span class="twinkle" style="top:38%; left:9%;  animation-delay:2.2s"></span>
+    <span class="twinkle" style="top:48%; left:74%; animation-delay:4.5s"></span>
+    <span class="twinkle" style="top:66%; left:30%; animation-delay:5.8s"></span>
+    <span class="twinkle" style="top:74%; left:88%; animation-delay:0.7s"></span>
+    <span class="twinkle" style="top:84%; left:15%; animation-delay:6.4s"></span>
     <div class="asteroid asteroid-1"></div>
     <div class="asteroid asteroid-2"></div>
     <div class="asteroid asteroid-3"></div>
     <div class="asteroid asteroid-4"></div>
     <div class="comet comet-1"></div>
     <div class="comet comet-2"></div>
-    <div class="planet planet-1"></div>
-    <div class="planet planet-2"></div>
   </div>
 
   <main class="auth-wrapper">
     <header class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="planetG" cx="35%" cy="35%">
-              <stop offset="0%" stop-color="#8ad4ff"/>
-              <stop offset="60%" stop-color="#1e6bd6"/>
-              <stop offset="100%" stop-color="#0a2a66"/>
-            </radialGradient>
-          </defs>
-          <circle cx="50" cy="50" r="30" fill="url(#planetG)"/>
-          <ellipse cx="50" cy="52" rx="46" ry="10" fill="none" stroke="#6fb6ff" stroke-width="2" opacity="0.8" transform="rotate(-20 50 52)"/>
-          <circle cx="74" cy="34" r="3" fill="#cfe8ff"/>
-          <circle cx="22" cy="70" r="2" fill="#cfe8ff"/>
+      <div class="logo logo-oa" aria-hidden="true">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#3d8bff" stroke-width="22" stroke-linejoin="miter" stroke-linecap="butt">
+            <circle cx="100" cy="92" r="78"/>
+            <path d="M 58 232 L 100 58 L 142 232"/>
+            <line x1="78" y1="152" x2="122" y2="152" stroke-width="14"/>
+          </g>
         </svg>
       </div>
       <h1 class="brand-title">Control de Tareas Diarias</h1>
@@ -51,8 +51,8 @@
 
       <form class="form active" id="form-login" autocomplete="off">
         <label>
-          <span>Usuario</span>
-          <input type="text" name="username" required placeholder="astronauta_01" />
+          <span>Usuario o correo</span>
+          <input type="text" name="username" required placeholder="tu@correo.com" />
         </label>
         <label>
           <span>Contraseña</span>
@@ -80,24 +80,11 @@
           <input type="email" name="email" required placeholder="correo@dominio.com" />
         </label>
         <label>
-          <span>Usuario</span>
-          <input type="text" name="username" required placeholder="Elige un usuario" />
-        </label>
-        <label>
           <span>Contraseña</span>
           <div class="password-wrap">
             <input type="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6" />
             <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
           </div>
-        </label>
-        <label>
-          <span>Tipo de usuario</span>
-          <select name="role" required>
-            <option value="colaborador">Colaborador</option>
-            <option value="empleador">Empleador</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="administrador">Administrador</option>
-          </select>
         </label>
         <label class="avatar-label">
           <span>Avatar</span>
