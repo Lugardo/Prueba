@@ -89,7 +89,7 @@ html, body {
   width: 4px; height: 4px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 8px 2px #cfe8ff;
+  box-shadow: 0 0 10px 3px #cfe8ff;
   opacity: 0;
 }
 .comet::after {
@@ -97,25 +97,46 @@ html, body {
   position: absolute;
   top: 50%;
   left: 4px;
-  width: 180px; height: 2px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(138,212,255,0));
+  width: 220px; height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(138,212,255,0));
   transform: translateY(-50%);
   border-radius: 2px;
 }
-.comet-1 { animation: cometA 14s ease-in infinite; animation-delay: 3s; }
-.comet-2 { animation: cometB 22s ease-in infinite; animation-delay: 9s; }
+.comet-1 { animation: cometA 11s ease-in infinite; animation-delay: 1s; }
+.comet-2 { animation: cometB 14s ease-in infinite; animation-delay: 5s; }
+.comet-3 { animation: cometC 17s ease-in infinite; animation-delay: 9s; }
+.comet-4 { animation: cometD 13s ease-in infinite; animation-delay: 12s; }
+.comet-5 { animation: cometE 19s ease-in infinite; animation-delay: 16s; }
 
 @keyframes cometA {
   0%   { top: 5%;  left: 110%; opacity: 0; transform: rotate(18deg); }
-  5%   { opacity: 1; }
-  25%  { top: 40%; left: -20%; opacity: 0; transform: rotate(18deg); }
-  100% { top: 40%; left: -20%; opacity: 0; transform: rotate(18deg); }
+  4%   { opacity: 1; }
+  22%  { top: 45%; left: -25%; opacity: 0; transform: rotate(18deg); }
+  100% { top: 45%; left: -25%; opacity: 0; transform: rotate(18deg); }
 }
 @keyframes cometB {
   0%   { top: 60%; left: -10%; opacity: 0; transform: rotate(-14deg); }
+  4%   { opacity: 1; }
+  18%  { top: 20%; left: 115%; opacity: 0; transform: rotate(-14deg); }
+  100% { top: 20%; left: 115%; opacity: 0; transform: rotate(-14deg); }
+}
+@keyframes cometC {
+  0%   { top: 15%; left: -10%; opacity: 0; transform: rotate(28deg); }
   5%   { opacity: 1; }
-  20%  { top: 20%; left: 110%; opacity: 0; transform: rotate(-14deg); }
-  100% { top: 20%; left: 110%; opacity: 0; transform: rotate(-14deg); }
+  20%  { top: 70%; left: 115%; opacity: 0; transform: rotate(28deg); }
+  100% { top: 70%; left: 115%; opacity: 0; transform: rotate(28deg); }
+}
+@keyframes cometD {
+  0%   { top: 80%; left: 115%; opacity: 0; transform: rotate(10deg); }
+  5%   { opacity: 1; }
+  22%  { top: 30%; left: -20%; opacity: 0; transform: rotate(10deg); }
+  100% { top: 30%; left: -20%; opacity: 0; transform: rotate(10deg); }
+}
+@keyframes cometE {
+  0%   { top: 35%; left: 115%; opacity: 0; transform: rotate(-22deg); }
+  5%   { opacity: 1; }
+  24%  { top: 90%; left: -25%; opacity: 0; transform: rotate(-22deg); }
+  100% { top: 90%; left: -25%; opacity: 0; transform: rotate(-22deg); }
 }
 
 /* ---------- Auth page ---------- */
@@ -141,8 +162,10 @@ html, body {
     drop-shadow(0 0 48px rgba(138,212,255,0.35));
   animation: bob 5s ease-in-out infinite;
 }
-.logo svg { width: 100%; height: 100%; }
-.logo-sm { width: 44px; height: 50px; margin: 0; }
+.logo svg, .logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.logo-sm { width: 50px; height: 50px; margin: 0; }
+.logo-img { width: 150px; height: 150px; }
+.logo-img.logo-sm { width: 50px; height: 50px; }
 @keyframes bob {
   0%,100% { transform: translateY(-4px); }
   50%     { transform: translateY(4px); }
@@ -326,6 +349,12 @@ html, body {
   color: rgba(168,211,255,0.65);
   margin: 4px 0 0;
 }
+.reset-step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .demo-code {
   background: rgba(61,139,255,0.15);
   padding: 10px;
