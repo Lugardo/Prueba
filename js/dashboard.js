@@ -595,6 +595,7 @@
             <td data-label="Rol">${u.role ? `<span class="badge ${u.role}">${u.role}</span>` : `<span class="badge badge-none">sin rol</span>`}</td>
             <td data-label="Estado"><span class="badge user-status-${st}">${statusLabelUser(st)}</span></td>
             <td data-label="Acciones" class="cell-actions">
+              <button class="btn-ghost" data-edit-user="${u.id}">Editar datos</button>
               <button class="btn-ghost" data-reset="${u.id}">Restablecer</button>
               <button class="btn-ghost" data-role="${u.id}">Cambiar rol</button>
               <button class="btn-ghost" data-status="${u.id}">Cambiar estado</button>
@@ -608,6 +609,9 @@
           </tr>
         `;
       }).join("");
+      tbody.querySelectorAll("[data-edit-user]").forEach(b =>
+        b.addEventListener("click", () => editUserDialog(b.dataset.editUser, refresh))
+      );
       tbody.querySelectorAll("[data-reset]").forEach(b =>
         b.addEventListener("click", () => resetPasswordDialog(b.dataset.reset))
       );
@@ -646,6 +650,93 @@
       );
     }
     refresh();
+  }
+
+  function editUserDialog(userId, onDone) {
+    const u = DB.getUserById(userId);
+    if (!u) return;
+    const dlg = document.createElement("dialog");
+    dlg.className = "edit-user-dialog";
+    dlg.innerHTML = `
+      <h3>Editar datos de usuario</h3>
+      <form id="eu-form" method="dialog">
+        <div class="avatar-edit">
+          <div class="avatar-preview" id="eu-avatar">
+            ${u.avatar ? `<img src="${u.avatar}" alt="avatar"/>` : `<span>Sin imagen</span>`}
+          </div>
+          <label class="btn-ghost eu-upload">
+            Cambiar avatar
+            <input type="file" accept="image/*" id="eu-avatar-input" hidden />
+          </label>
+          ${u.avatar ? `<button type="button" class="btn-ghost eu-remove" id="eu-avatar-remove">Quitar</button>` : ""}
+        </div>
+        <label><span>Nombre</span>
+          <input name="name" required value="${escapeHtml(u.name)}"/>
+        </label>
+        <div class="grid-2">
+          <label><span>Usuario</span>
+            <input name="username" required value="${escapeHtml(u.username)}" pattern="[a-zA-Z0-9._-]{3,20}" title="3 a 20 caracteres: letras, números, . _ -"/>
+          </label>
+          <label><span>Teléfono</span>
+            <input type="tel" name="phone" required value="${escapeHtml(u.phone)}"/>
+          </label>
+        </div>
+        <label><span>Correo electrónico</span>
+          <input type="email" name="email" required value="${escapeHtml(u.email)}"/>
+        </label>
+        <p class="form-msg" id="eu-msg"></p>
+        <div class="row">
+          <button type="button" class="btn-ghost" id="eu-cancel">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar</button>
+        </div>
+      </form>
+    `;
+    document.body.appendChild(dlg);
+    dlg.showModal();
+
+    let newAvatar = u.avatar || "";
+    const preview = dlg.querySelector("#eu-avatar");
+    const fileInput = dlg.querySelector("#eu-avatar-input");
+    const removeBtn = dlg.querySelector("#eu-avatar-remove");
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      if (f.size > 2 * 1024 * 1024) { setMsg("La imagen no debe superar 2 MB.", "error"); return; }
+      const reader = new FileReader();
+      reader.onload = () => { newAvatar = reader.result; preview.innerHTML = `<img src="${newAvatar}" alt="avatar"/>`; };
+      reader.readAsDataURL(f);
+    });
+    if (removeBtn) removeBtn.addEventListener("click", () => {
+      newAvatar = "";
+      preview.innerHTML = `<span>Sin imagen</span>`;
+      removeBtn.remove();
+    });
+
+    function setMsg(text, type) {
+      const el = dlg.querySelector("#eu-msg");
+      el.textContent = text;
+      el.className = "form-msg " + (type || "");
+    }
+
+    dlg.querySelector("#eu-cancel").addEventListener("click", () => { dlg.close(); dlg.remove(); });
+    dlg.querySelector("#eu-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const name = String(fd.get("name")).trim();
+      const username = String(fd.get("username")).trim();
+      const phone = String(fd.get("phone")).trim();
+      const email = String(fd.get("email")).trim();
+
+      const others = DB.getUsers().filter(x => x.id !== u.id);
+      if (others.some(x => x.username.toLowerCase() === username.toLowerCase()))
+        return setMsg("Ese usuario ya está en uso.", "error");
+      if (others.some(x => x.email.toLowerCase() === email.toLowerCase()))
+        return setMsg("Ese correo ya está en uso.", "error");
+
+      DB.updateUser(u.id, { name, username, phone, email, avatar: newAvatar });
+      dlg.close(); dlg.remove();
+      onDone && onDone();
+    });
   }
 
   function approveDialog(userId, onDone) {

@@ -406,6 +406,21 @@ body { background: transparent; }
   border: 1px dashed var(--blue-400);
 }
 
+.avatar-edit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.avatar-edit .avatar-preview { width: 72px; height: 72px; margin: 0; flex-shrink: 0; }
+.avatar-edit .eu-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .avatar-label { gap: 10px; align-items: center; text-align: center; }
 .avatar-label > input[type="file"] { align-self: center; }
 .avatar-preview {
