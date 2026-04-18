@@ -15,8 +15,9 @@
   tabs.forEach(t => t.addEventListener("click", () => {
     tabs.forEach(x => x.classList.remove("active"));
     t.classList.add("active");
-    Object.values(forms).forEach(f => f.classList.remove("active"));
-    forms[t.dataset.tab].classList.add("active");
+    Object.values(forms).forEach(f => { if (f) f.classList.remove("active"); });
+    const target = forms[t.dataset.tab];
+    if (target) target.classList.add("active");
     clearMessages();
   }));
 
