@@ -16,6 +16,22 @@
   });
 
   const panel = document.getElementById("panel");
+
+  const STATUSES = [
+    { key: "trabajando", label: "Trabajando" },
+    { key: "revision",   label: "En revisión" },
+    { key: "realizada",  label: "Realizada" },
+    { key: "cancelado",  label: "Cancelado" },
+  ];
+  function getStatus(t) {
+    if (t && t.status) return t.status;
+    return t && t.done ? "realizada" : "trabajando";
+  }
+  function statusLabel(k) { return (STATUSES.find(s => s.key === k) || STATUSES[0]).label; }
+  function statusOptions(selected) {
+    return STATUSES.map(s => `<option value="${s.key}" ${s.key===selected?"selected":""}>${s.label}</option>`).join("");
+  }
+
   render();
 
   function render() {
@@ -29,12 +45,12 @@
   /* =================== COLABORADOR =================== */
   function renderColaborador() {
     const tasks = DB.getTasksByUser(user.id);
-    const done = tasks.filter(t => t.done).length;
+    const byStatus = k => tasks.filter(t => getStatus(t) === k).length;
     panel.innerHTML = `
       <div class="grid-3">
         <div class="stat"><div class="num">${tasks.length}</div><div class="lbl">Tareas</div></div>
-        <div class="stat"><div class="num">${done}</div><div class="lbl">Completadas</div></div>
-        <div class="stat"><div class="num">${tasks.length - done}</div><div class="lbl">Pendientes</div></div>
+        <div class="stat"><div class="num">${byStatus("realizada")}</div><div class="lbl">Realizadas</div></div>
+        <div class="stat"><div class="num">${byStatus("trabajando") + byStatus("revision")}</div><div class="lbl">En proceso</div></div>
       </div>
 
       <section class="card">
@@ -45,15 +61,18 @@
           </label>
           <div class="grid-3">
             <label><span>Hora de inicio</span>
-              <input type="time" name="start" id="start-input" required />
+              <input type="text" class="time-field" name="start" id="start-input" required readonly placeholder="--:--" />
             </label>
             <label><span>Hora de fin</span>
-              <input type="time" name="end" id="end-input" required />
+              <input type="text" class="time-field" name="end" id="end-input" required readonly placeholder="--:--" />
             </label>
             <label><span>Tiempo (HH:MM)</span>
               <input name="time" id="time-input" required readonly placeholder="00:00" />
             </label>
           </div>
+          <label><span>Estado inicial</span>
+            <select name="status">${statusOptions("trabajando")}</select>
+          </label>
           <p class="hint" id="time-hint">El tiempo se calcula automáticamente al capturar inicio y fin.</p>
           <label><span>Comentarios</span>
             <textarea name="comments" rows="3" placeholder="Detalles de la tarea..."></textarea>
@@ -63,10 +82,19 @@
       </section>
 
       <section class="card">
+        <h3>Calendario de tareas</h3>
+        <div id="calendar"></div>
+      </section>
+
+      <section class="card">
         <h3>Mis tareas reportadas</h3>
         <ul class="task-list" id="my-tasks"></ul>
       </section>
     `;
+
+    attachTimePicker(document.getElementById("start-input"));
+    attachTimePicker(document.getElementById("end-input"));
+    setupTimeRange();
 
     document.getElementById("task-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -76,6 +104,7 @@
         document.getElementById("time-hint").textContent = "Captura una hora de inicio y fin válidas.";
         return;
       }
+      const status = String(fd.get("status") || "trabajando");
       DB.addTask({
         userId: user.id,
         name: String(fd.get("name")).trim(),
@@ -83,13 +112,14 @@
         end: String(fd.get("end") || "").trim(),
         time,
         comments: String(fd.get("comments") || "").trim(),
-        done: false,
+        status,
+        done: status === "realizada",
       });
       e.target.reset();
       render();
     });
 
-    setupTimeRange();
+    renderCalendar(document.getElementById("calendar"), tasks);
 
     const list = document.getElementById("my-tasks");
     if (!tasks.length) {
@@ -98,12 +128,27 @@
     }
     list.innerHTML = tasks
       .slice().sort((a, b) => b.createdAt - a.createdAt)
-      .map(t => taskCard(t, { canDelete: true })).join("");
+      .map(t => taskCard(t, { canDelete: true, canChangeStatus: true })).join("");
 
+    bindTaskActions(list, render);
+  }
+
+  /* Enlaza botones de cambio de estado y borrado en una lista de tareas */
+  function bindTaskActions(list, refresh) {
     list.querySelectorAll("[data-del]").forEach(b =>
       b.addEventListener("click", () => {
-        if (confirm("¿Eliminar esta tarea?")) { DB.deleteTask(b.dataset.del); render(); }
+        if (confirm("¿Eliminar esta tarea?")) { DB.deleteTask(b.dataset.del); refresh(); }
       })
+    );
+    list.querySelectorAll("select[data-status]").forEach(sel =>
+      sel.addEventListener("change", () => {
+        const k = sel.value;
+        DB.updateTask(sel.dataset.status, { status: k, done: k === "realizada" });
+        refresh();
+      })
+    );
+    list.querySelectorAll("[data-edit]").forEach(b =>
+      b.addEventListener("click", () => openEditTask(b.dataset.edit, refresh))
     );
   }
 
@@ -143,21 +188,24 @@
 
   function taskCard(t, opts = {}) {
     const owner = DB.getUserById(t.userId);
+    const st = getStatus(t);
+    const statusCtrl = opts.canChangeStatus
+      ? `<select class="status-select" data-status="${t.id}">${statusOptions(st)}</select>`
+      : `<span class="badge status-${st}">${statusLabel(st)}</span>`;
     return `
-      <li class="task-item ${t.done ? "done" : ""}">
+      <li class="task-item status-bar-${st}">
         <div>
           <div class="task-name">${escapeHtml(t.name)}</div>
           <div class="task-meta">
             <span>⏱ ${escapeHtml(t.time || "--:--")}</span>
             ${t.start || t.end ? `<span>🕒 ${escapeHtml(t.start || "--:--")} → ${escapeHtml(t.end || "--:--")}</span>` : ""}
-            <span class="badge ${t.done ? "done" : "pending"}">${t.done ? "Completada" : "Pendiente"}</span>
+            ${statusCtrl}
             ${opts.showOwner && owner ? `<span>👤 ${escapeHtml(owner.name)}</span>` : ""}
             <span>🗓 ${new Date(t.updatedAt).toLocaleString()}</span>
           </div>
           ${t.comments ? `<div class="task-comment">${escapeHtml(t.comments)}</div>` : ""}
         </div>
         <div class="task-actions">
-          ${opts.canToggle ? `<button class="btn-ok" data-toggle="${t.id}">${t.done ? "Reabrir" : "Marcar hecha"}</button>` : ""}
           ${opts.canEdit ? `<button class="btn-ghost" data-edit="${t.id}">Editar</button>` : ""}
           ${opts.canDelete ? `<button class="btn-danger" data-del="${t.id}">Eliminar</button>` : ""}
         </div>
@@ -173,7 +221,7 @@
       <div class="grid-3">
         <div class="stat"><div class="num">${users.length}</div><div class="lbl">Colaboradores</div></div>
         <div class="stat"><div class="num">${allTasks.length}</div><div class="lbl">Tareas</div></div>
-        <div class="stat"><div class="num">${allTasks.filter(t=>t.done).length}</div><div class="lbl">Completadas</div></div>
+        <div class="stat"><div class="num">${allTasks.filter(t=>getStatus(t)==="realizada").length}</div><div class="lbl">Realizadas</div></div>
       </div>
 
       <section class="card">
@@ -185,8 +233,7 @@
           </select>
           <select id="f-status">
             <option value="">Cualquier estado</option>
-            <option value="pending">Pendientes</option>
-            <option value="done">Completadas</option>
+            ${STATUSES.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}
           </select>
           <input type="text" id="f-text" placeholder="Buscar..." />
         </div>
@@ -202,8 +249,7 @@
     function refresh() {
       let rows = DB.getTasks().filter(t => users.some(u => u.id === t.userId));
       if (fUser.value) rows = rows.filter(t => t.userId === fUser.value);
-      if (fStatus.value === "done") rows = rows.filter(t => t.done);
-      if (fStatus.value === "pending") rows = rows.filter(t => !t.done);
+      if (fStatus.value) rows = rows.filter(t => getStatus(t) === fStatus.value);
       if (fText.value.trim()) {
         const q = fText.value.toLowerCase();
         rows = rows.filter(t =>
@@ -213,23 +259,10 @@
       }
       rows.sort((a,b) => b.updatedAt - a.updatedAt);
       list.innerHTML = rows.length
-        ? rows.map(t => taskCard(t, { showOwner: true, canToggle: true, canEdit: true, canDelete: true })).join("")
+        ? rows.map(t => taskCard(t, { showOwner: true, canChangeStatus: true, canEdit: true, canDelete: true })).join("")
         : `<li class="empty">Sin tareas para los filtros seleccionados.</li>`;
 
-      list.querySelectorAll("[data-toggle]").forEach(b =>
-        b.addEventListener("click", () => {
-          const t = DB.getTasks().find(x => x.id === b.dataset.toggle);
-          if (t) { DB.updateTask(t.id, { done: !t.done }); refresh(); }
-        })
-      );
-      list.querySelectorAll("[data-edit]").forEach(b =>
-        b.addEventListener("click", () => openEditTask(b.dataset.edit, refresh))
-      );
-      list.querySelectorAll("[data-del]").forEach(b =>
-        b.addEventListener("click", () => {
-          if (confirm("¿Eliminar esta tarea?")) { DB.deleteTask(b.dataset.del); refresh(); }
-        })
-      );
+      bindTaskActions(list, refresh);
     }
     [fUser, fStatus, fText].forEach(el => el.addEventListener("input", refresh));
     refresh();
@@ -244,16 +277,13 @@
       <form method="dialog" id="edit-form">
         <label><span>Nombre</span><input name="name" required value="${escapeHtml(t.name)}"/></label>
         <div class="grid-3">
-          <label><span>Inicio</span><input type="time" name="start" value="${escapeHtml(t.start || "")}"/></label>
-          <label><span>Fin</span><input type="time" name="end" value="${escapeHtml(t.end || "")}"/></label>
-          <label><span>Tiempo</span><input name="time" id="edit-time" required value="${escapeHtml(t.time)}" pattern="^\\d{1,2}:\\d{2}$"/></label>
+          <label><span>Inicio</span><input type="text" class="time-field" name="start" readonly value="${escapeHtml(t.start || "")}"/></label>
+          <label><span>Fin</span><input type="text" class="time-field" name="end" readonly value="${escapeHtml(t.end || "")}"/></label>
+          <label><span>Tiempo</span><input name="time" id="edit-time" required readonly value="${escapeHtml(t.time)}" pattern="^\\d{1,2}:\\d{2}$"/></label>
         </div>
         <label><span>Comentarios</span><textarea name="comments" rows="3">${escapeHtml(t.comments || "")}</textarea></label>
         <label><span>Estado</span>
-          <select name="done">
-            <option value="0" ${!t.done ? "selected" : ""}>Pendiente</option>
-            <option value="1" ${t.done ? "selected" : ""}>Completada</option>
-          </select>
+          <select name="status">${statusOptions(getStatus(t))}</select>
         </label>
         <div class="row">
           <button type="button" class="btn-ghost" id="cancel-edit">Cancelar</button>
@@ -267,6 +297,8 @@
     const startEl = dlg.querySelector('[name="start"]');
     const endEl = dlg.querySelector('[name="end"]');
     const timeEl = dlg.querySelector("#edit-time");
+    attachTimePicker(startEl);
+    attachTimePicker(endEl);
     function recompute() {
       const parse = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ""); return m ? +m[1] * 60 + +m[2] : null; };
       const a = parse(startEl.value), b = parse(endEl.value);
@@ -281,13 +313,15 @@
     dlg.querySelector("#edit-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
+      const status = String(fd.get("status") || "trabajando");
       DB.updateTask(t.id, {
         name: String(fd.get("name")).trim(),
         start: String(fd.get("start") || "").trim(),
         end: String(fd.get("end") || "").trim(),
         time: String(fd.get("time")).trim(),
         comments: String(fd.get("comments") || "").trim(),
-        done: fd.get("done") === "1",
+        status,
+        done: status === "realizada",
       });
       dlg.close(); dlg.remove();
       onDone && onDone();
@@ -302,7 +336,7 @@
       <div class="grid-3">
         <div class="stat"><div class="num">${users.length}</div><div class="lbl">Colaboradores</div></div>
         <div class="stat"><div class="num">${allTasks.length}</div><div class="lbl">Tareas</div></div>
-        <div class="stat"><div class="num">${allTasks.filter(t=>t.done).length}</div><div class="lbl">Completadas</div></div>
+        <div class="stat"><div class="num">${allTasks.filter(t=>getStatus(t)==="realizada").length}</div><div class="lbl">Realizadas</div></div>
       </div>
       <section class="card">
         <h3>Consulta de tareas (solo lectura)</h3>
@@ -313,8 +347,7 @@
           </select>
           <select id="s-status">
             <option value="">Cualquier estado</option>
-            <option value="pending">Pendientes</option>
-            <option value="done">Completadas</option>
+            ${STATUSES.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}
           </select>
         </div>
         <ul class="task-list" id="sup-tasks"></ul>
@@ -326,8 +359,7 @@
     function refresh() {
       let rows = DB.getTasks().filter(t => users.some(u => u.id === t.userId));
       if (sUser.value) rows = rows.filter(t => t.userId === sUser.value);
-      if (sStatus.value === "done") rows = rows.filter(t => t.done);
-      if (sStatus.value === "pending") rows = rows.filter(t => !t.done);
+      if (sStatus.value) rows = rows.filter(t => getStatus(t) === sStatus.value);
       rows.sort((a,b) => b.updatedAt - a.updatedAt);
       list.innerHTML = rows.length
         ? rows.map(t => taskCard(t, { showOwner: true })).join("")
@@ -454,6 +486,159 @@
       dlg.close(); dlg.remove();
       onDone && onDone();
     });
+  }
+
+  /* =================== Selector de hora personalizado =================== */
+  function attachTimePicker(input) {
+    input.readOnly = true;
+    input.classList.add("time-field");
+    const open = (e) => { e && e.preventDefault(); openTimePicker(input); };
+    input.addEventListener("click", open);
+    input.addEventListener("focus", open);
+  }
+
+  function openTimePicker(input) {
+    const pad = n => String(n).padStart(2, "0");
+    const now = new Date();
+    const match = /^(\d{1,2}):(\d{2})$/.exec(input.value || "");
+    let h = match ? Math.min(23, +match[1]) : now.getHours();
+    let m = match ? Math.round((+match[2]) / 5) * 5 % 60 : Math.round(now.getMinutes() / 5) * 5 % 60;
+
+    const dlg = document.createElement("dialog");
+    dlg.className = "time-picker-dialog";
+    dlg.innerHTML = `
+      <div class="tp-header">
+        <div class="tp-clock">
+          <span class="tp-h">${pad(h)}</span><span class="tp-sep">:</span><span class="tp-m">${pad(m)}</span>
+        </div>
+        <p class="tp-sub">Elige hora y minutos</p>
+      </div>
+      <div class="tp-cols">
+        <div class="tp-col">
+          <div class="tp-col-label">Hora</div>
+          <div class="tp-col-grid" id="tp-h-grid">
+            ${Array.from({length:24}, (_,i) => `<button type="button" class="tp-cell ${i===h?"active":""}" data-h="${i}">${pad(i)}</button>`).join("")}
+          </div>
+        </div>
+        <div class="tp-col">
+          <div class="tp-col-label">Minutos</div>
+          <div class="tp-col-grid" id="tp-m-grid">
+            ${Array.from({length:12}, (_,i) => i*5).map(mm => `<button type="button" class="tp-cell ${mm===m?"active":""}" data-m="${mm}">${pad(mm)}</button>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="tp-actions">
+        <button type="button" class="btn-ghost" id="tp-now">Ahora</button>
+        <button type="button" class="btn-ghost" id="tp-cancel">Cancelar</button>
+        <button type="button" class="btn-primary" id="tp-ok">Aceptar</button>
+      </div>
+    `;
+    document.body.appendChild(dlg);
+    dlg.showModal();
+
+    const hEl = dlg.querySelector(".tp-h");
+    const mEl = dlg.querySelector(".tp-m");
+    function setH(v) { h = v; hEl.textContent = pad(h); dlg.querySelectorAll("[data-h]").forEach(b => b.classList.toggle("active", +b.dataset.h === h)); }
+    function setM(v) { m = v; mEl.textContent = pad(m); dlg.querySelectorAll("[data-m]").forEach(b => b.classList.toggle("active", +b.dataset.m === m)); }
+
+    dlg.querySelector("#tp-h-grid").addEventListener("click", e => {
+      const b = e.target.closest("[data-h]"); if (b) setH(+b.dataset.h);
+    });
+    dlg.querySelector("#tp-m-grid").addEventListener("click", e => {
+      const b = e.target.closest("[data-m]"); if (b) setM(+b.dataset.m);
+    });
+    dlg.querySelector("#tp-now").addEventListener("click", () => {
+      const n = new Date();
+      setH(n.getHours());
+      setM(Math.round(n.getMinutes() / 5) * 5 % 60);
+    });
+    const close = () => { dlg.close(); dlg.remove(); };
+    dlg.querySelector("#tp-cancel").addEventListener("click", close);
+    dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
+    dlg.querySelector("#tp-ok").addEventListener("click", () => {
+      input.value = pad(h) + ":" + pad(m);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      close();
+    });
+  }
+
+  /* =================== Calendario =================== */
+  function renderCalendar(container, tasks) {
+    let viewDate = new Date();
+    let selected = null;
+
+    function draw() {
+      const y = viewDate.getFullYear();
+      const mo = viewDate.getMonth();
+      const first = new Date(y, mo, 1);
+      const daysInMonth = new Date(y, mo + 1, 0).getDate();
+      const startOffset = (first.getDay() + 6) % 7; // lunes = 0
+      const monthName = first.toLocaleString("es", { month: "long", year: "numeric" });
+
+      const dayKey = d => `${y}-${pad(mo+1)}-${pad(d)}`;
+      const pad = n => String(n).padStart(2, "0");
+      const tasksByDay = {};
+      tasks.forEach(t => {
+        const d = new Date(t.createdAt);
+        if (d.getFullYear() === y && d.getMonth() === mo) {
+          const k = dayKey(d.getDate());
+          (tasksByDay[k] = tasksByDay[k] || []).push(t);
+        }
+      });
+
+      const cells = [];
+      for (let i = 0; i < startOffset; i++) cells.push(`<div class="cal-cell empty"></div>`);
+      for (let d = 1; d <= daysInMonth; d++) {
+        const k = dayKey(d);
+        const dayTasks = tasksByDay[k] || [];
+        const dots = [...new Set(dayTasks.map(getStatus))]
+          .map(s => `<span class="cal-dot status-${s}" title="${statusLabel(s)}"></span>`).join("");
+        const isSel = selected === k ? "selected" : "";
+        const today = new Date();
+        const isToday = (today.getFullYear()===y && today.getMonth()===mo && today.getDate()===d) ? "today" : "";
+        cells.push(`
+          <button type="button" class="cal-cell ${isSel} ${isToday}" data-day="${k}">
+            <span class="cal-num">${d}</span>
+            <span class="cal-dots">${dots}</span>
+            ${dayTasks.length ? `<span class="cal-count">${dayTasks.length}</span>` : ""}
+          </button>
+        `);
+      }
+
+      container.innerHTML = `
+        <div class="cal-head">
+          <button type="button" class="btn-ghost" id="cal-prev">◀</button>
+          <strong class="cal-title">${monthName}</strong>
+          <button type="button" class="btn-ghost" id="cal-next">▶</button>
+        </div>
+        <div class="cal-weekdays">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div class="cal-grid">${cells.join("")}</div>
+        <div class="cal-legend">
+          ${STATUSES.map(s => `<span class="legend-item"><span class="cal-dot status-${s.key}"></span>${s.label}</span>`).join("")}
+        </div>
+        <ul class="task-list cal-day-list" id="cal-day-list"></ul>
+      `;
+
+      container.querySelector("#cal-prev").addEventListener("click", () => { viewDate = new Date(y, mo - 1, 1); selected = null; draw(); });
+      container.querySelector("#cal-next").addEventListener("click", () => { viewDate = new Date(y, mo + 1, 1); selected = null; draw(); });
+      container.querySelectorAll("[data-day]").forEach(btn =>
+        btn.addEventListener("click", () => { selected = btn.dataset.day; drawDayList(); container.querySelectorAll(".cal-cell").forEach(c => c.classList.toggle("selected", c.dataset.day === selected)); })
+      );
+      drawDayList();
+
+      function drawDayList() {
+        const list = container.querySelector("#cal-day-list");
+        if (!selected) { list.innerHTML = `<li class="empty">Selecciona un día para ver sus tareas.</li>`; return; }
+        const dayTasks = tasksByDay[selected] || [];
+        if (!dayTasks.length) { list.innerHTML = `<li class="empty">Sin tareas registradas ese día.</li>`; return; }
+        list.innerHTML = dayTasks.map(t => taskCard(t, { canChangeStatus: true })).join("");
+        bindTaskActions(list, () => render());
+      }
+    }
+    draw();
   }
 
   /* =================== Helpers =================== */

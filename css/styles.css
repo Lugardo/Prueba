@@ -536,6 +536,247 @@ input[readonly] {
   cursor: default;
 }
 
+/* Campo de hora estilizado con ícono de reloj */
+.time-field {
+  padding-right: 40px !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238ad4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 18px 18px !important;
+  cursor: pointer !important;
+}
+.time-field:hover {
+  border-color: var(--blue-400) !important;
+  box-shadow: 0 0 0 3px rgba(61,139,255,0.18);
+}
+
+/* Quita el ícono nativo de los inputs type="time" por si quedara alguno */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(70%) sepia(80%) saturate(500%) hue-rotate(180deg);
+  cursor: pointer;
+  opacity: 0.9;
+}
+input[type="time"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* ---------- Picker de hora personalizado ---------- */
+dialog.time-picker-dialog {
+  width: min(460px, 96vw);
+  padding: 22px;
+  background: linear-gradient(160deg, #0a1a4a 0%, #040d2e 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  color: var(--blue-100);
+}
+dialog.time-picker-dialog::backdrop { background: rgba(2,8,33,0.8); backdrop-filter: blur(6px); }
+
+.tp-header { text-align: center; margin-bottom: 14px; }
+.tp-clock {
+  font-family: "Segoe UI", monospace;
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 24px rgba(138,212,255,0.7);
+  letter-spacing: 4px;
+  line-height: 1;
+}
+.tp-clock .tp-sep {
+  color: var(--accent);
+  animation: tpBlink 1.2s ease-in-out infinite;
+}
+@keyframes tpBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.tp-sub {
+  margin: 6px 0 0;
+  color: var(--blue-300);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tp-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 14px 0;
+}
+.tp-col-label {
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--blue-300);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.tp-col-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px;
+  background: rgba(2,8,33,0.6);
+  border: 1px solid rgba(138,212,255,0.15);
+  border-radius: 12px;
+}
+.tp-col-grid::-webkit-scrollbar { width: 6px; }
+.tp-col-grid::-webkit-scrollbar-thumb { background: rgba(138,212,255,0.3); border-radius: 4px; }
+
+.tp-cell {
+  background: transparent;
+  color: var(--blue-200);
+  border: 1px solid transparent;
+  padding: 8px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Segoe UI", monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.tp-cell:hover { background: rgba(61,139,255,0.2); color: #fff; }
+.tp-cell.active {
+  background: linear-gradient(135deg, var(--blue-400), var(--blue-600));
+  color: #fff;
+  box-shadow: 0 0 12px rgba(61,139,255,0.6);
+  transform: scale(1.05);
+}
+
+.tp-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.tp-actions button { padding: 10px 18px; }
+
+/* ---------- Status badges ---------- */
+.badge.status-trabajando { background: rgba(61,139,255,0.22); color: var(--blue-300); }
+.badge.status-revision   { background: rgba(255,209,102,0.22); color: var(--warn); }
+.badge.status-realizada  { background: rgba(79,225,167,0.22); color: var(--ok); }
+.badge.status-cancelado  { background: rgba(255,107,107,0.22); color: var(--danger); }
+
+.status-select {
+  background: rgba(2,8,33,0.7);
+  border: 1px solid rgba(138,212,255,0.2);
+  color: var(--blue-100);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.task-item {
+  position: relative;
+  border-left: 3px solid transparent;
+}
+.task-item.status-bar-trabajando { border-left-color: var(--blue-400); }
+.task-item.status-bar-revision   { border-left-color: var(--warn); }
+.task-item.status-bar-realizada  { border-left-color: var(--ok); }
+.task-item.status-bar-cancelado  { border-left-color: var(--danger); opacity: 0.7; }
+.task-item.status-bar-realizada .task-name { text-decoration: line-through; color: var(--blue-300); }
+
+/* ---------- Calendario ---------- */
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cal-title {
+  color: #fff;
+  font-size: 1.05rem;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+}
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.cal-weekdays span {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--blue-300);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-cell {
+  position: relative;
+  min-height: 58px;
+  background: rgba(2,8,33,0.5);
+  border: 1px solid rgba(138,212,255,0.1);
+  border-radius: 10px;
+  color: var(--blue-100);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+}
+.cal-cell:hover {
+  background: rgba(61,139,255,0.18);
+  border-color: var(--blue-400);
+  transform: translateY(-1px);
+}
+.cal-cell.empty {
+  background: transparent;
+  border: 1px dashed rgba(138,212,255,0.05);
+  cursor: default;
+  pointer-events: none;
+}
+.cal-cell.today {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(138,212,255,0.3) inset;
+}
+.cal-cell.selected {
+  background: rgba(30,107,214,0.45);
+  border-color: var(--blue-300);
+  box-shadow: 0 0 14px rgba(61,139,255,0.6);
+}
+.cal-num { font-weight: 700; font-size: 0.9rem; }
+.cal-dots { display: flex; gap: 3px; flex-wrap: wrap; }
+.cal-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+.cal-dot.status-trabajando { background: var(--blue-400); box-shadow: 0 0 6px var(--blue-400); }
+.cal-dot.status-revision   { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+.cal-dot.status-realizada  { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.cal-dot.status-cancelado  { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+.cal-count {
+  position: absolute;
+  top: 4px; right: 6px;
+  background: var(--blue-500);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.cal-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 6px;
+  font-size: 0.78rem;
+  color: var(--blue-200);
+}
+.cal-legend .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.cal-day-list { margin-top: 10px; }
+@media (max-width: 540px) {
+  .cal-cell { min-height: 48px; padding: 4px; }
+  .cal-num { font-size: 0.78rem; }
+}
+
 dialog {
   border: 1px solid var(--glass-border);
   border-radius: 16px;
