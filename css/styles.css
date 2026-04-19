@@ -1878,3 +1878,114 @@ body.auth-body {
   letter-spacing: 1px;
   margin-top: 24px;
 }
+
+/* ============================================================
+   ESTILO MINIMALISTA (Dashboard / Reports) - Tema blanco limpio
+   Scope: <body class="dashboard-body">
+   ============================================================ */
+.dashboard-body {
+  --m-bg: #f7f9fc;
+  --m-surface: #ffffff;
+  --m-surface-2: #f8fafc;
+  --m-text: #0f172a;
+  --m-muted: #64748b;
+  --m-muted-2: #94a3b8;
+  --m-border: #e2e8f0;
+  --m-border-strong: #cbd5e1;
+  --m-primary: #1e6bd6;
+  --m-primary-hover: #1554b3;
+  --m-primary-soft: #eaf2ff;
+  --m-danger: #dc2626;
+  --m-danger-soft: #fee2e2;
+  --m-ok: #059669;
+  --m-ok-soft: #d1fae5;
+  --m-warn: #d97706;
+  --m-warn-soft: #fef3c7;
+  --m-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --m-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+html:has(body.dashboard-body) { background: var(--m-bg); }
+body.dashboard-body {
+  background: var(--m-bg);
+  color: var(--m-text);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ocultar fondo espacial si quedara algún resto */
+.dashboard-body .space-bg,
+.dashboard-body .stars,
+.dashboard-body .stars-2,
+.dashboard-body .stars-3,
+.dashboard-body .twinkle,
+.dashboard-body .comet { display: none !important; }
+
+/* Topbar */
+.dashboard-body .topbar {
+  background: var(--m-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid var(--m-border);
+  padding: 16px 28px;
+}
+.dashboard-body .topbar h2 {
+  color: var(--m-text);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.dashboard-body .role-tag {
+  color: var(--m-primary);
+  letter-spacing: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Logo en topbar */
+.dashboard-body .logo {
+  filter: none;
+  animation: none;
+}
+.dashboard-body .logo img {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(1700%) hue-rotate(205deg) brightness(92%) contrast(92%);
+}
+
+/* User chip */
+.dashboard-body .user-chip {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+  padding: 6px 14px 6px 6px;
+}
+.dashboard-body .user-chip img {
+  background: var(--m-primary-soft);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .user-chip strong { color: var(--m-text); }
+.dashboard-body .user-chip small { color: var(--m-muted); }
+
+/* Hamburger */
+.dashboard-body .hamburger {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .hamburger:hover {
+  background: var(--m-primary-soft);
+  border-color: var(--m-primary);
+  box-shadow: none;
+}
+.dashboard-body .hamburger span { background: var(--m-text); }
+
+/* Menú mobile */
+@media (max-width: 720px) {
+  .dashboard-body .topbar-right {
+    background: var(--m-surface);
+    border-bottom: 1px solid var(--m-border);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Main layout */
+.dashboard-body .dashboard { padding: 0 24px; margin: 28px auto; }
