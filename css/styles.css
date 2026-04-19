@@ -2237,3 +2237,208 @@ body.dashboard-body {
   font-weight: 600;
 }
 .dashboard-body .status-select:hover { border-color: var(--m-primary); }
+
+/* Filter bar (dashboards, sobre card blanca) */
+.dashboard-body .filter-bar select,
+.dashboard-body .filter-bar input {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  padding: 9px 12px;
+  border-radius: 9px;
+}
+.dashboard-body .filter-bar select:focus,
+.dashboard-body .filter-bar input:focus {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+  outline: none;
+}
+
+/* Input readonly (códigos demo, etc.) */
+.dashboard-body input[readonly] {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  border: 1px solid #bfdbfe;
+  font-weight: 700;
+}
+
+/* Campo hora con ícono */
+.dashboard-body .time-field {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e6bd6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg>") !important;
+}
+.dashboard-body .time-field:hover {
+  border-color: var(--m-primary) !important;
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+}
+
+/* ============ Calendario ============ */
+.dashboard-body .cal-filters {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .cal-filters .cal-f-control,
+.dashboard-body .cal-filters input[type="date"] {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  color-scheme: light;
+}
+.dashboard-body .cal-filters .cal-f-control:focus,
+.dashboard-body .cal-filters input[type="date"]:focus {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+  outline: none;
+}
+.dashboard-body .cal-date { color: var(--m-muted); font-weight: 600; }
+
+.dashboard-body .cal-stats-bar { gap: 12px; }
+.dashboard-body .cal-stat-pill {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.dashboard-body .cal-stat-pill .cal-stat-lbl { color: var(--m-muted); }
+.dashboard-body .cal-stat-pill strong { color: var(--m-text); }
+
+.dashboard-body .cal-title { color: var(--m-text); font-weight: 600; }
+.dashboard-body .cal-weekdays span { color: var(--m-muted); font-weight: 600; }
+
+.dashboard-body .cal-cell {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+}
+.dashboard-body .cal-cell:hover {
+  background: var(--m-primary-soft);
+  border-color: var(--m-primary);
+  transform: none;
+}
+.dashboard-body .cal-cell.empty {
+  background: transparent;
+  border: 1px dashed transparent;
+}
+.dashboard-body .cal-cell.today {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 1px var(--m-primary) inset;
+}
+.dashboard-body .cal-cell.selected {
+  background: var(--m-primary);
+  border-color: var(--m-primary);
+  color: #fff;
+  box-shadow: none;
+}
+.dashboard-body .cal-cell.selected .cal-num { color: #fff; }
+.dashboard-body .cal-count {
+  background: var(--m-primary);
+  color: #fff;
+}
+.dashboard-body .cal-cell.selected .cal-count {
+  background: #fff;
+  color: var(--m-primary);
+}
+.dashboard-body .cal-legend { color: var(--m-muted); }
+
+.dashboard-body .cal-dot.status-trabajando { background: var(--m-primary); box-shadow: none; }
+.dashboard-body .cal-dot.status-revision   { background: var(--m-warn); box-shadow: none; }
+.dashboard-body .cal-dot.status-realizada  { background: var(--m-ok); box-shadow: none; }
+.dashboard-body .cal-dot.status-cancelado  { background: var(--m-danger); box-shadow: none; }
+
+/* ============ Diálogos ============ */
+.dashboard-body dialog,
+dialog {
+  /* Aplicamos sin scope porque los <dialog> suelen abrirse en top-layer */
+}
+body.dashboard-body ~ dialog,
+.dashboard-body dialog {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  border-radius: 16px;
+}
+.dashboard-body dialog::backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+}
+.dashboard-body dialog h3 { color: var(--m-text); }
+.dashboard-body dialog label { color: var(--m-muted); font-weight: 600; }
+.dashboard-body dialog input,
+.dashboard-body dialog select,
+.dashboard-body dialog textarea {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  color-scheme: light;
+}
+.dashboard-body dialog input:hover,
+.dashboard-body dialog select:hover,
+.dashboard-body dialog textarea:hover {
+  background: var(--m-surface);
+  border-color: var(--m-border-strong);
+}
+.dashboard-body dialog input:focus,
+.dashboard-body dialog select:focus,
+.dashboard-body dialog textarea:focus {
+  background: var(--m-surface);
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+}
+.dashboard-body dialog input::placeholder,
+.dashboard-body dialog textarea::placeholder { color: var(--m-muted-2); }
+.dashboard-body dialog select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e6bd6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+}
+
+/* Diálogo de confirmación */
+.dashboard-body dialog.confirm-dialog .confirm-msg { color: var(--m-muted); }
+.dashboard-body dialog.confirm-dialog .confirm-icon { filter: none; }
+
+/* Time picker */
+.dashboard-body dialog.time-picker-dialog {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+}
+.dashboard-body .tp-clock {
+  color: var(--m-text);
+  text-shadow: none;
+  font-weight: 700;
+}
+.dashboard-body .tp-clock .tp-sep { color: var(--m-primary); }
+.dashboard-body .tp-sub { color: var(--m-muted); }
+.dashboard-body .tp-col-label { color: var(--m-muted); }
+.dashboard-body .tp-col-grid {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .tp-cell { color: var(--m-text); }
+.dashboard-body .tp-cell:hover {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+}
+.dashboard-body .tp-cell.active {
+  background: var(--m-primary);
+  color: #fff;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Info grid (detalles tarea) */
+.dashboard-body .info-grid {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .info-label { color: var(--m-muted); }
+.dashboard-body .info-val { color: var(--m-text); }
+.dashboard-body .info-val.info-comment {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+}
+
+/* Campos obligatorios */
+.dashboard-body em.req { color: var(--m-danger); }
+
+/* Cell actions em (empty) */
+.dashboard-body .cell-actions em { color: var(--m-muted); }
