@@ -1989,3 +1989,136 @@ body.dashboard-body {
 
 /* Main layout */
 .dashboard-body .dashboard { padding: 0 24px; margin: 28px auto; }
+
+/* Cards */
+.dashboard-body .card {
+  background: var(--m-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--m-border);
+  border-radius: 14px;
+  box-shadow: var(--m-shadow-sm);
+  padding: 22px;
+}
+.dashboard-body .card h3 {
+  color: var(--m-text);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.dashboard-body .card h3::before {
+  background: var(--m-primary);
+  box-shadow: none;
+}
+
+/* Stats */
+.dashboard-body .stat {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: 12px;
+  padding: 18px 14px;
+}
+.dashboard-body .stat .num {
+  color: var(--m-text);
+  font-weight: 700;
+  font-size: 1.7rem;
+}
+.dashboard-body .stat .lbl {
+  color: var(--m-muted);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* Task items */
+.dashboard-body .task-item {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  border-left-width: 3px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dashboard-body .task-item:hover {
+  border-color: var(--m-border-strong);
+  box-shadow: var(--m-shadow-sm);
+}
+.dashboard-body .task-item.done .task-name,
+.dashboard-body .task-item.status-bar-realizada .task-name {
+  color: var(--m-muted);
+}
+.dashboard-body .task-name { color: var(--m-text); font-weight: 600; }
+.dashboard-body .task-comment { color: var(--m-muted); }
+.dashboard-body .task-meta { color: var(--m-muted); }
+.dashboard-body .task-meta span {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+  color: var(--m-muted);
+  padding: 2px 10px;
+}
+
+/* Barra lateral de estado en task-item */
+.dashboard-body .task-item.status-bar-trabajando { border-left-color: var(--m-primary); }
+.dashboard-body .task-item.status-bar-revision   { border-left-color: var(--m-warn); }
+.dashboard-body .task-item.status-bar-realizada  { border-left-color: var(--m-ok); }
+.dashboard-body .task-item.status-bar-cancelado  { border-left-color: var(--m-danger); }
+
+/* Empty state */
+.dashboard-body .empty {
+  color: var(--m-muted);
+  background: var(--m-surface-2);
+  border: 1px dashed var(--m-border);
+  border-radius: 12px;
+  padding: 32px 16px;
+}
+
+/* Botones */
+.dashboard-body .btn-primary {
+  background: var(--m-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-weight: 600;
+  letter-spacing: 0;
+  box-shadow: 0 1px 2px rgba(30, 107, 214, 0.15);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.dashboard-body .btn-primary:hover {
+  background: var(--m-primary-hover);
+  transform: none;
+  box-shadow: 0 3px 10px rgba(30, 107, 214, 0.22);
+}
+
+.dashboard-body .btn-ghost {
+  background: var(--m-surface);
+  color: var(--m-text);
+  border: 1px solid var(--m-border);
+  padding: 9px 14px;
+  border-radius: 9px;
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.dashboard-body .btn-ghost:hover {
+  background: var(--m-surface-2);
+  border-color: var(--m-border-strong);
+}
+
+.dashboard-body .btn-ok {
+  background: var(--m-ok);
+  color: #fff;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.dashboard-body .btn-ok:hover { background: #047857; }
+
+.dashboard-body .btn-danger {
+  background: var(--m-danger);
+  color: #fff;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.dashboard-body .btn-danger:hover { background: #b91c1c; }
