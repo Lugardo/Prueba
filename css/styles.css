@@ -2522,3 +2522,187 @@ body.dashboard-body ~ dialog,
 .dashboard-body ::-webkit-scrollbar-thumb { background: var(--m-border-strong); border-radius: 10px; }
 .dashboard-body ::-webkit-scrollbar-thumb:hover { background: var(--m-muted-2); }
 .dashboard-body ::-webkit-scrollbar-track { background: transparent; }
+
+/* ============================================================
+   FORMULARIOS DENTRO DEL DASHBOARD (inputs en cards, no solo auth)
+   Sobrescribe los estilos oscuros heredados de .form
+   ============================================================ */
+.dashboard-body .form input,
+.dashboard-body .form select,
+.dashboard-body .form textarea {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color-scheme: light;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.dashboard-body .form input::placeholder,
+.dashboard-body .form textarea::placeholder { color: var(--m-muted-2); }
+.dashboard-body .form input:hover,
+.dashboard-body .form select:hover,
+.dashboard-body .form textarea:hover {
+  border-color: var(--m-border-strong);
+  background: var(--m-surface);
+}
+.dashboard-body .form input:focus,
+.dashboard-body .form select:focus,
+.dashboard-body .form textarea:focus {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+  outline: none;
+  background: var(--m-surface);
+}
+
+/* Select del dashboard con chevron azul */
+.dashboard-body .form select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e6bd6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* Toggle de contraseña en el dashboard */
+.dashboard-body .toggle-pass {
+  background: var(--m-surface);
+  color: var(--m-muted);
+  border: 1px solid var(--m-border);
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.dashboard-body .toggle-pass:hover {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  border-color: var(--m-primary);
+}
+
+/* Avatar preview en dashboard */
+.dashboard-body .avatar-preview {
+  background: var(--m-surface-2);
+  border: 1px dashed var(--m-border-strong);
+  color: var(--m-muted);
+  box-shadow: none;
+}
+
+/* Hint y mensajes */
+.dashboard-body .hint { color: var(--m-muted); }
+.dashboard-body .hint.error { color: var(--m-danger); font-weight: 600; }
+.dashboard-body .form-msg.error { color: var(--m-danger); }
+.dashboard-body .form-msg.ok { color: var(--m-ok); }
+
+/* ============================================================
+   ETIQUETAS DE INPUT EN NEGRITA + AZUL FUERTE
+   Aplica a labels de formularios y de diálogos
+   ============================================================ */
+.dashboard-body .form label > span,
+.auth-body .form label > span {
+  color: var(--m-primary);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  font-size: 0.85rem;
+}
+.dashboard-body dialog label,
+.auth-body dialog label {
+  color: var(--m-primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+}
+.dashboard-body .cal-date,
+.dashboard-body .inline-radio {
+  color: var(--m-primary);
+  font-weight: 700;
+}
+.dashboard-body .inline-radio input { accent-color: var(--m-primary); }
+
+/* Required indicator contrast with blue labels */
+.dashboard-body em.req,
+.auth-body em.req { color: var(--m-danger); }
+
+/* ============================================================
+   HOVER GLOBAL: botones e inputs (auth + dashboard)
+   ============================================================ */
+
+/* Botones primarios con lift sutil */
+.auth-body .btn-primary,
+.dashboard-body .btn-primary {
+  transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+.auth-body .btn-primary:hover,
+.dashboard-body .btn-primary:hover {
+  background: var(--m-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(30, 107, 214, 0.28);
+}
+.auth-body .btn-primary:active,
+.dashboard-body .btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(30, 107, 214, 0.2);
+}
+
+/* Botones ghost con fondo azul suave al hover */
+.auth-body .btn-ghost,
+.dashboard-body .btn-ghost {
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.auth-body .btn-ghost:hover,
+.dashboard-body .btn-ghost:hover {
+  background: var(--m-primary-soft);
+  border-color: var(--m-primary);
+  color: var(--m-primary);
+  transform: translateY(-1px);
+}
+.auth-body .btn-ghost:active,
+.dashboard-body .btn-ghost:active { transform: translateY(0); }
+
+/* Botones ok y danger con hover consistente */
+.dashboard-body .btn-ok,
+.auth-body .btn-ok {
+  transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+.dashboard-body .btn-ok:hover,
+.auth-body .btn-ok:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.26);
+}
+.dashboard-body .btn-danger,
+.auth-body .btn-danger {
+  transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+.dashboard-body .btn-danger:hover,
+.auth-body .btn-danger:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
+}
+
+/* Hover específico para inputs del calendario y filtros */
+.dashboard-body .cal-filters .cal-f-control:hover,
+.dashboard-body .cal-filters input[type="date"]:hover,
+.dashboard-body .filter-bar select:hover,
+.dashboard-body .filter-bar input:hover {
+  border-color: var(--m-primary);
+  background: var(--m-surface);
+}
+
+/* Hover para status-select (pills inline) */
+.dashboard-body .status-select {
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.dashboard-body .status-select:hover {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+}
+
+/* Links dentro de topbar-right (ej: "← Panel") */
+.dashboard-body .topbar-right a.btn-ghost { text-decoration: none; }
+
+/* Hover en task-actions (pequeños botones dentro de cada tarea) */
+.dashboard-body .task-item .task-actions > button { transition: all 0.15s ease; }
