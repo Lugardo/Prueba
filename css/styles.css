@@ -2122,3 +2122,118 @@ body.dashboard-body {
   font-weight: 600;
 }
 .dashboard-body .btn-danger:hover { background: #b91c1c; }
+
+/* Tablas */
+.dashboard-body table { color: var(--m-text); }
+.dashboard-body th, .dashboard-body td {
+  border-bottom: 1px solid var(--m-border);
+}
+.dashboard-body th {
+  color: var(--m-muted);
+  background: var(--m-surface-2);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+}
+.dashboard-body tbody tr:hover { background: var(--m-primary-soft); }
+
+/* Pending cards (solicitudes) */
+.dashboard-body .pending-card {
+  background: var(--m-warn-soft);
+  border: 1px solid #fde68a;
+  border-left: 4px solid var(--m-warn);
+  border-radius: 12px;
+}
+.dashboard-body .pending-card .pending-name { color: var(--m-text); font-weight: 600; }
+.dashboard-body .pending-card .pending-meta { color: var(--m-muted); }
+
+/* Filas admin por status */
+.dashboard-body tr.row-status-inactive,
+.dashboard-body tr.row-status-rejected { opacity: 0.7; }
+
+/* Badges */
+.dashboard-body .badge {
+  padding: 3px 10px;
+  font-weight: 600;
+  font-size: 0.7rem;
+  border: 1px solid transparent;
+}
+.dashboard-body .badge.badge-none {
+  background: var(--m-surface-2);
+  color: var(--m-muted);
+  border-color: var(--m-border);
+  font-style: italic;
+}
+
+/* User-status badges */
+.dashboard-body .badge.user-status-approved {
+  background: var(--m-ok-soft); color: var(--m-ok); border-color: #a7f3d0;
+}
+.dashboard-body .badge.user-status-pending  {
+  background: var(--m-warn-soft); color: var(--m-warn); border-color: #fde68a;
+}
+.dashboard-body .badge.user-status-rejected {
+  background: var(--m-danger-soft); color: var(--m-danger); border-color: #fecaca;
+}
+.dashboard-body .badge.user-status-inactive {
+  background: var(--m-surface-2); color: var(--m-muted); border-color: var(--m-border);
+}
+
+/* Role badges */
+.dashboard-body .badge.colaborador {
+  background: var(--m-ok-soft); color: var(--m-ok); border-color: #a7f3d0;
+}
+.dashboard-body .badge.empleador {
+  background: var(--m-warn-soft); color: var(--m-warn); border-color: #fde68a;
+}
+.dashboard-body .badge.supervisor {
+  background: var(--m-primary-soft); color: var(--m-primary); border-color: #bfdbfe;
+}
+.dashboard-body .badge.administrador {
+  background: var(--m-danger-soft); color: var(--m-danger); border-color: #fecaca;
+}
+
+/* Status badges de tareas */
+.dashboard-body .badge.done {
+  background: var(--m-ok-soft); color: var(--m-ok); border-color: #a7f3d0;
+}
+.dashboard-body .badge.pending {
+  background: var(--m-warn-soft); color: var(--m-warn); border-color: #fde68a;
+}
+.dashboard-body .badge.status-trabajando {
+  background: var(--m-primary-soft); color: var(--m-primary); border-color: #bfdbfe;
+}
+.dashboard-body .badge.status-revision {
+  background: var(--m-warn-soft); color: var(--m-warn); border-color: #fde68a;
+}
+.dashboard-body .badge.status-realizada {
+  background: var(--m-ok-soft); color: var(--m-ok); border-color: #a7f3d0;
+}
+.dashboard-body .badge.status-cancelado {
+  background: var(--m-danger-soft); color: var(--m-danger); border-color: #fecaca;
+}
+
+/* Versión mobile admin: tarjetas */
+@media (max-width: 720px) {
+  .dashboard-body .table-wrap tr {
+    background: var(--m-surface);
+    border: 1px solid var(--m-border);
+  }
+  .dashboard-body .table-wrap tr:hover { background: var(--m-surface-2); }
+  .dashboard-body .table-wrap tr.row-status-inactive,
+  .dashboard-body .table-wrap tr.row-status-rejected { border-left: 3px solid var(--m-danger); }
+  .dashboard-body .table-wrap tr.row-status-pending { border-left: 3px solid var(--m-warn); }
+  .dashboard-body .table-wrap td { color: var(--m-text); }
+  .dashboard-body .table-wrap td + td { border-top: 1px dashed var(--m-border); }
+  .dashboard-body .table-wrap td::before { color: var(--m-muted); }
+}
+
+/* Status select inline (pill) */
+.dashboard-body .status-select {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  padding: 3px 10px;
+  font-weight: 600;
+}
+.dashboard-body .status-select:hover { border-color: var(--m-primary); }
