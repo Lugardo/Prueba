@@ -1634,3 +1634,247 @@ dialog.time-picker-dialog { padding: 16px; }
   .task-meta { gap: 4px 6px; }
   .task-item .task-actions > * { font-size: 0.8rem; padding: 8px 10px; }
 }
+
+/* ============================================================
+   ESTILO MINIMALISTA (Auth / Login) - Tema blanco y limpio
+   Solo aplica cuando <body class="auth-body">
+   ============================================================ */
+.auth-body {
+  --m-bg: #f7f9fc;
+  --m-surface: #ffffff;
+  --m-text: #0f172a;
+  --m-muted: #64748b;
+  --m-border: #e2e8f0;
+  --m-border-strong: #cbd5e1;
+  --m-primary: #1e6bd6;
+  --m-primary-hover: #1554b3;
+  --m-primary-soft: #eaf2ff;
+  --m-danger: #dc2626;
+  --m-ok: #059669;
+  --m-warn: #d97706;
+  --m-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --m-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+html:has(body.auth-body) { background: var(--m-bg); }
+body.auth-body {
+  background: var(--m-bg);
+  color: var(--m-text);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fondo espacial: invisible en la página de login */
+.auth-body .space-bg,
+.auth-body .stars,
+.auth-body .stars-2,
+.auth-body .stars-3,
+.auth-body .twinkle,
+.auth-body .comet { display: none !important; }
+
+/* Wrapper */
+.auth-body .auth-wrapper { padding: 40px 20px; }
+
+/* Brand / header */
+.auth-body .brand { margin-bottom: 28px; }
+.auth-body .logo {
+  filter: none;
+  animation: none;
+  width: 220px;
+  height: 70px;
+}
+.auth-body .logo img { filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(1700%) hue-rotate(205deg) brightness(92%) contrast(92%); }
+.auth-body .brand-title {
+  color: var(--m-text);
+  text-shadow: none;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: -0.01em;
+}
+.auth-body .brand-sub {
+  color: var(--m-muted);
+  letter-spacing: 3px;
+  font-weight: 500;
+  opacity: 1;
+  font-size: 0.78rem;
+}
+
+/* Card */
+.auth-body .auth-card {
+  background: var(--m-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--m-border);
+  border-radius: 16px;
+  box-shadow: var(--m-shadow);
+  padding: 32px 28px;
+}
+
+/* Tabs */
+.auth-body .tabs {
+  background: var(--m-bg);
+  border: 1px solid var(--m-border);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.auth-body .tab {
+  color: var(--m-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 9px;
+  border-radius: 7px;
+}
+.auth-body .tab:hover { color: var(--m-text); }
+.auth-body .tab.active {
+  background: var(--m-surface);
+  color: var(--m-primary);
+  box-shadow: var(--m-shadow-sm);
+  font-weight: 600;
+}
+
+/* Forms */
+.auth-body .form { gap: 16px; }
+.auth-body .form label {
+  color: var(--m-text);
+  font-weight: 500;
+  font-size: 0.85rem;
+  gap: 7px;
+}
+.auth-body .form input,
+.auth-body .form select,
+.auth-body .form textarea {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-body .form input::placeholder { color: #94a3b8; }
+.auth-body .form input:hover,
+.auth-body .form select:hover,
+.auth-body .form textarea:hover { border-color: var(--m-border-strong); }
+.auth-body .form input:focus,
+.auth-body .form select:focus,
+.auth-body .form textarea:focus {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+}
+
+/* Toggle de contraseña */
+.auth-body .toggle-pass {
+  background: transparent;
+  color: var(--m-muted);
+  border: 1px solid var(--m-border);
+  font-weight: 500;
+}
+.auth-body .toggle-pass:hover {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  border-color: var(--m-primary);
+}
+
+/* Avatar */
+.auth-body .avatar-preview {
+  background: var(--m-bg);
+  border: 1px dashed var(--m-border-strong);
+  color: var(--m-muted);
+  box-shadow: none;
+}
+
+/* Mensajes / hints */
+.auth-body .form-msg.error { color: var(--m-danger); }
+.auth-body .form-msg.ok { color: var(--m-ok); }
+.auth-body .hint { color: var(--m-muted); }
+.auth-body .hint.error { color: var(--m-danger); }
+
+/* Demo code */
+.auth-body .demo-code {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  border: 1px dashed var(--m-primary);
+}
+
+/* Botones */
+.auth-body .btn-primary {
+  background: var(--m-primary);
+  color: #fff;
+  border: none;
+  padding: 13px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  box-shadow: 0 1px 2px rgba(30, 107, 214, 0.15);
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.auth-body .btn-primary:hover {
+  background: var(--m-primary-hover);
+  transform: none;
+  box-shadow: 0 4px 12px rgba(30, 107, 214, 0.25);
+}
+.auth-body .btn-primary:active { transform: translateY(1px); }
+
+.auth-body .btn-ghost {
+  background: var(--m-surface);
+  color: var(--m-text);
+  border: 1px solid var(--m-border);
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.auth-body .btn-ghost:hover {
+  background: var(--m-bg);
+  border-color: var(--m-border-strong);
+}
+
+.auth-body .btn-danger {
+  background: var(--m-danger);
+  color: #fff;
+  border: none;
+}
+.auth-body .btn-ok {
+  background: var(--m-ok);
+  color: #fff;
+  border: none;
+}
+
+/* Vistas alternas (contacto / agujero negro) */
+.auth-body .auth-view h3 { color: var(--m-text); font-size: 1.15rem; font-weight: 600; }
+.auth-body .auth-view p { color: var(--m-muted); }
+.auth-body .contact-icon {
+  font-size: 2.4rem;
+  filter: none;
+}
+
+/* La vista del "agujero negro" no encaja con el estilo minimalista:
+   simplificamos mostrando un icono/estado neutro */
+.auth-body .blackhole-wrap { display: none; }
+.auth-body #view-blackhole {
+  padding: 8px 0;
+}
+.auth-body #view-blackhole::before {
+  content: "🚫";
+  display: block;
+  font-size: 2.6rem;
+  line-height: 1;
+  margin: 4px 0 10px;
+}
+.auth-body .bh-title {
+  color: var(--m-text);
+  text-shadow: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 4px 0 8px;
+}
+
+/* Footer */
+.auth-body .auth-foot {
+  color: var(--m-muted);
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  margin-top: 24px;
+}
