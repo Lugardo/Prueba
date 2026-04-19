@@ -2442,3 +2442,83 @@ body.dashboard-body ~ dialog,
 
 /* Cell actions em (empty) */
 .dashboard-body .cell-actions em { color: var(--m-muted); }
+
+/* ============ Reportes ============ */
+.dashboard-body .reports-banner p { color: var(--m-muted); }
+
+.dashboard-body .rep-table { color: var(--m-text); }
+.dashboard-body .rep-table thead th {
+  background: var(--m-surface-2);
+  color: var(--m-muted);
+  border-bottom: 1px solid var(--m-border);
+}
+.dashboard-body .rep-table thead th:hover { color: var(--m-text); }
+.dashboard-body .rep-table thead th.sort-asc::after,
+.dashboard-body .rep-table thead th.sort-desc::after { color: var(--m-primary); }
+.dashboard-body .rep-table th,
+.dashboard-body .rep-table td { border-bottom: 1px solid var(--m-border); }
+.dashboard-body .rep-table tbody tr:hover { background: var(--m-primary-soft); }
+.dashboard-body .rep-table td.empty { color: var(--m-muted); }
+
+/* Reportes mobile tarjetas */
+@media (max-width: 720px) {
+  .dashboard-body .rep-table tr {
+    background: var(--m-surface);
+    border: 1px solid var(--m-border);
+  }
+  .dashboard-body .rep-table td + td { border-top: 1px dashed var(--m-border); }
+  .dashboard-body .rep-table td::before { color: var(--m-muted); }
+}
+
+/* ============ Notas ============ */
+.dashboard-body .note-pill { color: var(--m-text); }
+.dashboard-body .note-pill.note-private {
+  background: var(--m-danger-soft);
+  border: 1px solid #fecaca;
+  color: var(--m-danger);
+}
+.dashboard-body .note-pill.note-public {
+  background: var(--m-ok-soft);
+  border: 1px solid #a7f3d0;
+  color: var(--m-ok);
+}
+.dashboard-body .note-pill .note-meta { color: inherit; opacity: 0.7; }
+
+.dashboard-body .notes-editor {
+  background: var(--m-surface-2);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .notes-editor-title { color: var(--m-text); }
+
+.dashboard-body .note-row {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+}
+.dashboard-body .note-row.note-private { border-left: 3px solid var(--m-danger); }
+.dashboard-body .note-row.note-public  { border-left: 3px solid var(--m-ok); }
+.dashboard-body .note-row .note-text { color: var(--m-text); }
+.dashboard-body .note-row .note-meta { color: var(--m-muted); }
+
+.dashboard-body .notes-add textarea {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  color: var(--m-text);
+}
+.dashboard-body .notes-add textarea:focus {
+  border-color: var(--m-primary);
+  box-shadow: 0 0 0 3px rgba(30, 107, 214, 0.12);
+  outline: none;
+}
+.dashboard-body .inline-radio { color: var(--m-muted); }
+
+/* Card h3 con "dot" azul: mantener pero ajustar tamaño */
+.dashboard-body .card h3::before {
+  width: 7px;
+  height: 7px;
+}
+
+/* Scrollbars suaves (webkit) */
+.dashboard-body ::-webkit-scrollbar { width: 10px; height: 10px; }
+.dashboard-body ::-webkit-scrollbar-thumb { background: var(--m-border-strong); border-radius: 10px; }
+.dashboard-body ::-webkit-scrollbar-thumb:hover { background: var(--m-muted-2); }
+.dashboard-body ::-webkit-scrollbar-track { background: transparent; }
