@@ -506,9 +506,9 @@ body { background: transparent; }
   display: flex; flex-direction: column; gap: 10px;
   margin: 12px 0 14px;
 }
-.contact-actions .btn-primary, .contact-actions .btn-ghost { padding: 12px 16px; text-decoration: none; text-align: center; display: block; }
+.contact-actions .btn-primary, .contact-actions .btn-ghost { padding: 12px 16px; text-decoration: none; text-align: center; display: block; font-size: 16px; }
 .contact-actions a.btn-primary { color: #fff; }
-.contact-actions a.btn-ghost { color: var(--blue-100); }
+.contact-actions a.btn-ghost { color: var(--text); }
 .btn-ghost.full-w { width: 100%; }
 
 /* Agujero negro */
@@ -2212,4 +2212,18 @@ html[data-theme="light"] body {
   .theme-toggle .tt-thumb { width: 26px; height: 24px; }
   [data-theme="aster"] .theme-toggle .tt-thumb { transform: translateX(32px); }
   .theme-toggle .tt-icon { font-size: 0.85rem; }
+}
+
+/* =====================================================
+   Fuente fija de 16px para los botones del flujo de
+   registro, en cualquier tamaño de dispositivo.
+   Se pone al final para vencer cualquier media query.
+   ===================================================== */
+#form-register .btn-primary,
+#form-register .btn-ghost,
+#form-register .toggle-pass,
+#form-register button,
+.contact-actions .btn-primary,
+.contact-actions .btn-ghost {
+  font-size: 16px !important;
 }
