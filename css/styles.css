@@ -2304,6 +2304,10 @@ html[data-theme="light"] body {
     border-color: var(--m-border);
     box-shadow: var(--m-shadow-sm);
   }
+  [data-theme="light"] .table-wrap tr:hover { background: var(--m-primary-soft); }
+  [data-theme="light"] .table-wrap td { color: var(--m-text); }
+  [data-theme="light"] .table-wrap td::before { color: var(--m-muted); }
+  [data-theme="light"] .table-wrap td + td { border-top-color: var(--m-border); }
 
   /* Pending card en claro, móvil */
   [data-theme="light"] .pending-card {
