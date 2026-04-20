@@ -163,17 +163,29 @@ try {
             $exists->execute([$email]);
             if ($exists->fetch()) json_err('Ese correo ya está registrado.');
 
-            // username auto-generado desde el correo
-            $base = preg_replace('/[^a-z0-9._-]/', '', strtolower(explode('@', $email)[0]));
-            if ($base === '') $base = 'usuario';
-            $base = substr($base, 0, 20);
-            $candidate = $base; $i = 1;
-            $chk = db()->prepare("SELECT 1 FROM users WHERE LOWER(username) = ? LIMIT 1");
-            while (true) {
-                $chk->execute([strtolower($candidate)]);
-                if (!$chk->fetch()) break;
-                $candidate = $base . $i++;
-                if ($i > 9999) { $candidate = $base . dechex(time()); break; }
+            // Username: el usuario puede elegirlo (recomendado); si no viene, lo auto-generamos desde el correo
+            $provided = trim((string)($b['username'] ?? ''));
+            if ($provided !== '') {
+                if (!preg_match('/^[a-zA-Z0-9._-]{3,20}$/', $provided)) {
+                    json_err('Usuario inválido. Usa 3-20 caracteres: letras, números, punto, guion o guion bajo.');
+                }
+                $chk = db()->prepare("SELECT 1 FROM users WHERE LOWER(username) = ? LIMIT 1");
+                $chk->execute([strtolower($provided)]);
+                if ($chk->fetch()) json_err('Ese nombre de usuario ya está en uso.');
+                $candidate = $provided;
+            } else {
+                // Fallback: derivamos del correo
+                $base = preg_replace('/[^a-z0-9._-]/', '', strtolower(explode('@', $email)[0]));
+                if ($base === '') $base = 'usuario';
+                $base = substr($base, 0, 20);
+                $candidate = $base; $i = 1;
+                $chk = db()->prepare("SELECT 1 FROM users WHERE LOWER(username) = ? LIMIT 1");
+                while (true) {
+                    $chk->execute([strtolower($candidate)]);
+                    if (!$chk->fetch()) break;
+                    $candidate = $base . $i++;
+                    if ($i > 9999) { $candidate = $base . dechex(time()); break; }
+                }
             }
 
             $id = uid();

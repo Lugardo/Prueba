@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="faviconaster.png" />
   <link rel="apple-touch-icon" href="faviconaster.png" />
   <script>(function(){var t;try{t=localStorage.getItem('aster_theme');}catch(e){}document.documentElement.setAttribute('data-theme', (t==='aster'||t==='light')?t:'light');})();</script>
-  <link rel="stylesheet" href="css/styles.css?v=7" />
+  <link rel="stylesheet" href="css/styles.css?v=8" />
 </head>
 <body>
   <main class="auth-wrapper">
@@ -66,6 +66,10 @@
           <input type="email" name="email" required placeholder="correo@dominio.com" />
         </label>
         <label>
+          <span>Nombre de usuario</span>
+          <input type="text" name="username" required placeholder="tunombredeusuario" pattern="[a-zA-Z0-9._-]{3,20}" title="3 a 20 caracteres: letras, números, punto, guion o guion bajo" />
+        </label>
+        <label>
           <span>Contraseña</span>
           <div class="password-wrap">
             <input type="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6" />
@@ -119,9 +123,9 @@
     </footer>
   </main>
 
-  <script src="js/theme.js?v=7"></script>
-  <script src="js/data.js?v=7"></script>
-  <script src="js/auth.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/theme.js?v=8"></script>
+  <script src="js/data.js?v=8"></script>
+  <script src="js/auth.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>

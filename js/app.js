@@ -120,6 +120,7 @@
       name: fd.get("name"),
       phone: fd.get("phone"),
       email: fd.get("email"),
+      username: fd.get("username"),
       password: fd.get("password"),
       avatar: avatarDataURL,
     });

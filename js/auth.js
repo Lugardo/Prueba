@@ -26,6 +26,7 @@
     async register(data) {
       const res = await apiPost("auth/register", {
         name: data.name, phone: data.phone, email: data.email,
+        username: data.username || null,
         password: data.password, avatar: data.avatar || null,
       });
       return res;
