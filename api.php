@@ -95,6 +95,7 @@ function public_user(array $u): array {
         'username' => $u['username'],
         'role'     => $u['role'],
         'status'   => $u['status'],
+        'theme'    => $u['theme'] ?? 'light',
         'avatar'   => $u['avatar'],
     ];
 }
@@ -274,6 +275,15 @@ try {
             }
             db()->prepare("UPDATE users SET status = ? WHERE id = ?")->execute([$st, $b['id'] ?? '']);
             json_out(['ok' => true]);
+        }
+
+        case 'users/set_theme': {
+            $me = require_login();
+            $b = read_json_body();
+            $t = $b['theme'] ?? '';
+            if (!in_array($t, ['light','aster'], true)) json_err('Tema inválido.');
+            db()->prepare("UPDATE users SET theme = ? WHERE id = ?")->execute([$t, $me['id']]);
+            json_out(['ok' => true, 'theme' => $t]);
         }
 
         case 'users/reset_password': {

@@ -6,19 +6,22 @@
   <title>Control de Tareas Diarias</title>
   <link rel="icon" type="image/png" href="faviconaster.png" />
   <link rel="apple-touch-icon" href="faviconaster.png" />
-  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <script>(function(){var t;try{t=localStorage.getItem('aster_theme');}catch(e){}document.documentElement.setAttribute('data-theme', (t==='aster'||t==='light')?t:'light');})();</script>
+  <link rel="stylesheet" href="css/styles.css?v=5" />
 </head>
-<body class="auth-body">
+<body>
   <main class="auth-wrapper">
     <header class="brand">
       <div class="logo logo-img" aria-hidden="true">
-        <img src="asterlogoblanco.png" alt="Asterlogo" />
+        <img src="asterlogoblanco.png" class="logo-aster-only" alt="Asterlogo" />
+        <img src="asterlogoazul.png"   class="logo-light-only" alt="Asterlogo" />
       </div>
       <h1 class="brand-title">Control de Tareas Diarias</h1>
       <p class="brand-sub">Plataforma Orbital de Productividad</p>
     </header>
 
     <section class="auth-card" id="auth-card">
+      <button type="button" class="theme-toggle auth-theme-toggle" aria-label="Cambiar tema">🌌</button>
       <div id="auth-main">
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="login" role="tab">Iniciar sesión</button>
@@ -109,8 +112,9 @@
     </footer>
   </main>
 
-  <script src="js/data.js?v=4"></script>
-  <script src="js/auth.js?v=4"></script>
-  <script src="js/app.js?v=4"></script>
+  <script src="js/theme.js?v=5"></script>
+  <script src="js/data.js?v=5"></script>
+  <script src="js/auth.js?v=5"></script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>

@@ -47,6 +47,10 @@
   async function load() {
     const me = await apiGet("auth/me");
     STATE.me = me.ok ? me.user : null;
+    // Si el usuario tiene un tema guardado en DB distinto al del navegador, lo aplicamos
+    if (STATE.me && STATE.me.theme && global.Theme) {
+      if (global.Theme.get() !== STATE.me.theme) global.Theme.apply(STATE.me.theme);
+    }
     if (!STATE.me) return { authed: false };
 
     const [uList, tList] = await Promise.all([
