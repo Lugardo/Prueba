@@ -1733,84 +1733,52 @@ html[data-theme="light"] body {
 [data-theme="light"] .twinkle,
 [data-theme="light"] .comet { display: none !important; }
 
-/* Wrapper */
-[data-theme="light"] .auth-wrapper { padding: 40px 20px; }
-
-/* Brand / header */
-[data-theme="light"] .brand { margin-bottom: 28px; }
+/* Brand / header: en claro quitamos solo el glow y la animación.
+   El tamaño y el layout se heredan idénticos de Aster. */
 [data-theme="light"] .logo {
   filter: none;
   animation: none;
-  width: 220px;
-  height: 70px;
 }
-[data-theme="light"] .logo img { filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(1700%) hue-rotate(205deg) brightness(92%) contrast(92%); }
+[data-theme="light"] .logo img { filter: none; }
 [data-theme="light"] .brand-title {
   color: var(--m-text);
   text-shadow: none;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  letter-spacing: -0.01em;
 }
 [data-theme="light"] .brand-sub {
   color: var(--m-muted);
-  letter-spacing: 3px;
-  font-weight: 500;
   opacity: 1;
-  font-size: 0.78rem;
 }
 
-/* Card */
+/* Card: sólo colores/bordes, mantenemos padding y radius de Aster */
 [data-theme="light"] .auth-card {
   background: var(--m-surface);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 1px solid var(--m-border);
-  border-radius: 16px;
   box-shadow: var(--m-shadow);
-  padding: 32px 28px;
 }
 
 /* Tabs */
 [data-theme="light"] .tabs {
   background: var(--m-bg);
   border: 1px solid var(--m-border);
-  padding: 4px;
-  border-radius: 10px;
-  margin-bottom: 24px;
 }
-[data-theme="light"] .tab {
-  color: var(--m-muted);
-  font-weight: 500;
-  font-size: 0.9rem;
-  padding: 9px;
-  border-radius: 7px;
-}
+[data-theme="light"] .tab { color: var(--m-muted); }
 [data-theme="light"] .tab:hover { color: var(--m-text); }
 [data-theme="light"] .tab.active {
   background: var(--m-surface);
   color: var(--m-primary);
   box-shadow: var(--m-shadow-sm);
-  font-weight: 600;
 }
 
-/* Forms */
-[data-theme="light"] .form { gap: 16px; }
-[data-theme="light"] .form label {
-  color: var(--m-text);
-  font-weight: 500;
-  font-size: 0.85rem;
-  gap: 7px;
-}
+/* Forms (solo color) */
+[data-theme="light"] .form label { color: var(--m-text); }
 [data-theme="light"] .form input,
 [data-theme="light"] .form select,
 [data-theme="light"] .form textarea {
   background: var(--m-surface);
   border: 1px solid var(--m-border);
   color: var(--m-text);
-  padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 0.95rem;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 [data-theme="light"] .form input::placeholder { color: #94a3b8; }
@@ -1829,7 +1797,6 @@ html[data-theme="light"] body {
   background: transparent;
   color: var(--m-muted);
   border: 1px solid var(--m-border);
-  font-weight: 500;
 }
 [data-theme="light"] .toggle-pass:hover {
   background: var(--m-primary-soft);
@@ -1858,21 +1825,16 @@ html[data-theme="light"] body {
   border: 1px dashed var(--m-primary);
 }
 
-/* Botones */
+/* Botones (solo color; tamaño se mantiene con Aster) */
 [data-theme="light"] .btn-primary {
   background: var(--m-primary);
   color: #fff;
   border: none;
-  padding: 13px 18px;
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0;
   box-shadow: 0 1px 2px rgba(30, 107, 214, 0.15);
   transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 [data-theme="light"] .btn-primary:hover {
   background: var(--m-primary-hover);
-  transform: none;
   box-shadow: 0 4px 12px rgba(30, 107, 214, 0.25);
 }
 [data-theme="light"] .btn-primary:active { transform: translateY(1px); }
@@ -1881,9 +1843,6 @@ html[data-theme="light"] body {
   background: var(--m-surface);
   color: var(--m-text);
   border: 1px solid var(--m-border);
-  padding: 11px 16px;
-  border-radius: 10px;
-  font-weight: 500;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 [data-theme="light"] .btn-ghost:hover {
@@ -1903,12 +1862,9 @@ html[data-theme="light"] body {
 }
 
 /* Vistas alternas (contacto / agujero negro) */
-[data-theme="light"] .auth-view h3 { color: var(--m-text); font-size: 1.15rem; font-weight: 600; }
-[data-theme="light"] .auth-view p { color: var(--m-muted); }
-[data-theme="light"] .contact-icon {
-  font-size: 2.4rem;
-  filter: none;
-}
+[data-theme="light"] .auth-view h3 { color: var(--m-text); }
+[data-theme="light"] .auth-view p  { color: var(--m-muted); }
+[data-theme="light"] .contact-icon { filter: none; }
 
 /* La vista del "agujero negro" no encaja con el estilo minimalista:
    simplificamos mostrando un icono/estado neutro */
@@ -1926,18 +1882,10 @@ html[data-theme="light"] body {
 [data-theme="light"] .bh-title {
   color: var(--m-text);
   text-shadow: none;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 4px 0 8px;
 }
 
 /* Footer */
-[data-theme="light"] .auth-foot {
-  color: var(--m-muted);
-  font-size: 0.78rem;
-  letter-spacing: 1px;
-  margin-top: 24px;
-}
+[data-theme="light"] .auth-foot { color: var(--m-muted); }
 
 /* ============================================================
    Tema CLARO extendido a Dashboard y Reportes
@@ -1956,8 +1904,8 @@ html[data-theme="light"] body {
 }
 [data-theme="light"] .user-chip strong { color: var(--m-text); }
 [data-theme="light"] .user-chip small  { color: var(--m-muted); }
-[data-theme="light"] .logo-sm { filter: none; }
-[data-theme="light"] .logo-sm img { filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(1700%) hue-rotate(205deg) brightness(92%) contrast(92%); }
+[data-theme="light"] .logo-sm { filter: none; animation: none; }
+[data-theme="light"] .logo-sm img { filter: none; }
 [data-theme="light"] .hamburger {
   background: var(--m-primary-soft);
   border-color: var(--m-border);
@@ -2250,13 +2198,12 @@ html[data-theme="light"] body {
 [data-theme="light"] .theme-toggle .tt-light { opacity: 1; filter: none; transform: scale(1.05); }
 [data-theme="light"] .theme-toggle .tt-aster { opacity: 0.4; }
 
-/* Toggle flotante en el auth-card */
-.auth-card { position: relative; }
-.auth-theme-toggle {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 3;
+/* Fila que aloja el toggle encima del auth-card */
+.auth-theme-row {
+  display: flex;
+  justify-content: center;
+  width: min(460px, 100%);
+  margin: 0 auto 14px;
 }
 
 /* Escala pequeña en mobile */
