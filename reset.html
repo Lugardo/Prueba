@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restablecer contraseña · Control de Tareas Diarias</title>
+  <link rel="icon" type="image/png" href="faviconaster.png" />
+  <link rel="apple-touch-icon" href="faviconaster.png" />
+  <script>(function(){var t;try{t=localStorage.getItem('aster_theme');}catch(e){}document.documentElement.setAttribute('data-theme', (t==='aster'||t==='light')?t:'light');})();</script>
+  <link rel="stylesheet" href="css/styles.css?v=13" />
+</head>
+<body>
+  <div class="space-bg">
+    <div class="stars"></div>
+    <div class="stars stars-2"></div>
+    <div class="stars stars-3"></div>
+    <span class="twinkle" style="top:8%;  left:18%; animation-delay:0s"></span>
+    <span class="twinkle" style="top:14%; left:62%; animation-delay:1.6s"></span>
+    <span class="twinkle" style="top:22%; left:86%; animation-delay:3.1s"></span>
+    <span class="twinkle" style="top:38%; left:9%;  animation-delay:2.2s"></span>
+    <span class="twinkle" style="top:48%; left:74%; animation-delay:4.5s"></span>
+    <span class="twinkle" style="top:66%; left:30%; animation-delay:5.8s"></span>
+    <span class="twinkle" style="top:74%; left:88%; animation-delay:0.7s"></span>
+    <span class="twinkle" style="top:84%; left:15%; animation-delay:6.4s"></span>
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    <div class="comet comet-3"></div>
+    <div class="comet comet-4"></div>
+    <div class="comet comet-5"></div>
+  </div>
+
+  <main class="auth-wrapper">
+    <header class="brand">
+      <div class="logo logo-img" aria-hidden="true">
+        <img src="asterlogoblanco.png" class="logo-aster-only" alt="Asterlogo" />
+        <img src="asterlogoazul.png"   class="logo-light-only" alt="Asterlogo" />
+      </div>
+      <h1 class="brand-title">Restablecer contraseña</h1>
+      <p class="brand-sub">Plataforma Orbital de Productividad</p>
+    </header>
+
+    <div class="auth-theme-row">
+      <button type="button" class="theme-toggle" aria-label="Cambiar tema" aria-pressed="false">
+        <span class="tt-icon tt-light" aria-hidden="true">☀️</span>
+        <span class="tt-icon tt-aster" aria-hidden="true">🌙</span>
+        <span class="tt-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <section class="auth-card" id="auth-card">
+      <!-- Estado: cargando -->
+      <div class="auth-view" id="view-loading">
+        <p style="text-align:center;margin:20px 0;">Validando enlace…</p>
+      </div>
+
+      <!-- Estado: token inválido / usado / expirado -->
+      <div class="auth-view" id="view-invalid" hidden>
+        <div class="contact-icon">⛔</div>
+        <h3 id="invalid-title">Enlace no válido</h3>
+        <p id="invalid-msg">Pide al administrador un nuevo enlace para restablecer tu contraseña.</p>
+        <div class="contact-actions">
+          <a href="index.html" class="btn-primary">Ir al inicio de sesión</a>
+        </div>
+      </div>
+
+      <!-- Estado: formulario -->
+      <form class="form" id="reset-form" autocomplete="off" hidden>
+        <p class="hint" id="hello-msg" style="text-align:center;margin:0 0 10px;"></p>
+        <label>
+          <span>Nueva contraseña</span>
+          <div class="password-wrap">
+            <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+            <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </label>
+        <label>
+          <span>Confirmar contraseña</span>
+          <div class="password-wrap">
+            <input type="password" name="confirm" required minlength="6" placeholder="Repite la contraseña" />
+            <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </label>
+        <button class="btn-primary" type="submit">Guardar contraseña</button>
+        <p class="form-msg" id="reset-msg"></p>
+      </form>
+
+      <!-- Estado: éxito -->
+      <div class="auth-view" id="view-success" hidden>
+        <div class="contact-icon">✅</div>
+        <h3>Contraseña actualizada</h3>
+        <p>Tu nueva contraseña ya está activa. Ya puedes iniciar sesión.</p>
+        <div class="contact-actions">
+          <a href="index.html" class="btn-primary">Iniciar sesión</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="auth-foot">
+      <p>Estación base · Acceso seguro · v1.0</p>
+    </footer>
+  </main>
+
+  <script src="js/theme.js?v=13"></script>
+  <script src="js/reset.js?v=13"></script>
+</body>
+</html>

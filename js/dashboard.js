@@ -857,35 +857,81 @@
     const u = DB.getUserById(userId);
     if (!u) return;
     const dlg = document.createElement("dialog");
+    dlg.className = "reset-link-dialog";
     dlg.innerHTML = `
-      <h3>Restablecer contraseña</h3>
+      <h3>🔐 Restablecer contraseña</h3>
       <p>Usuario: <strong>${escapeHtml(u.name)}</strong> (@${escapeHtml(u.username)})</p>
-      <label><span>Nueva contraseña</span>
-        <div class="password-wrap">
-          <input type="password" id="new-pass" minlength="6" placeholder="Mínimo 6 caracteres"/>
-          <button type="button" class="toggle-pass">Ver</button>
+      <p class="hint">Se generará un enlace único que el usuario deberá abrir para elegir su propia contraseña. Caduca a las 24 horas y solo puede usarse una vez.</p>
+
+      <div id="rl-before">
+        <div class="row" style="justify-content:center;margin-top:10px;">
+          <button type="button" class="btn-primary" id="rl-generate">Generar enlace de restablecimiento</button>
         </div>
-      </label>
+      </div>
+
+      <div id="rl-after" hidden>
+        <div class="reset-link-box">
+          <label><span>Enlace generado</span>
+            <input type="text" id="rl-link" readonly />
+          </label>
+          <p class="hint" id="rl-expires"></p>
+        </div>
+        <div class="row">
+          <button type="button" class="btn-primary" id="rl-copy">📋 Copiar enlace</button>
+        </div>
+      </div>
+
+      <p class="form-msg" id="rl-msg"></p>
       <div class="row">
-        <button class="btn-ghost" id="cancel">Cancelar</button>
-        <button class="btn-primary" id="confirm">Guardar</button>
+        <button type="button" class="btn-ghost" id="rl-close">Cerrar</button>
       </div>
     `;
     document.body.appendChild(dlg);
     dlg.showModal();
-    dlg.querySelector(".toggle-pass").addEventListener("click", (e) => {
-      const i = dlg.querySelector("#new-pass");
-      const show = i.type === "text";
-      i.type = show ? "password" : "text";
-      e.target.textContent = show ? "Ver" : "Ocultar";
+
+    const msgEl = dlg.querySelector("#rl-msg");
+    function setMsg(text, type) {
+      msgEl.textContent = text || "";
+      msgEl.className = "form-msg " + (type || "");
+    }
+
+    dlg.querySelector("#rl-close").addEventListener("click", () => { dlg.close(); dlg.remove(); });
+
+    dlg.querySelector("#rl-generate").addEventListener("click", async () => {
+      setMsg("Generando enlace...");
+      try {
+        const res = await fetch("api.php?action=users/generate_reset_link", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userId }),
+        });
+        const data = await res.json();
+        if (!data.ok) { setMsg(data.error || "No se pudo generar el enlace.", "error"); return; }
+        const absoluteLink = location.origin + location.pathname.replace(/[^/]*$/, "") + data.link;
+        const exp = new Date(data.expires_at);
+        dlg.querySelector("#rl-link").value = absoluteLink;
+        dlg.querySelector("#rl-expires").textContent = "Caduca el " + exp.toLocaleString();
+        dlg.querySelector("#rl-before").hidden = true;
+        dlg.querySelector("#rl-after").hidden = false;
+        setMsg("");
+      } catch (e) {
+        setMsg("Error de red al generar el enlace.", "error");
+      }
     });
-    dlg.querySelector("#cancel").addEventListener("click", () => { dlg.close(); dlg.remove(); });
-    dlg.querySelector("#confirm").addEventListener("click", () => {
-      const np = dlg.querySelector("#new-pass").value;
-      if (!np || np.length < 6) { alert("Mínimo 6 caracteres."); return; }
-      DB.updateUser(u.id, { password: np });
-      alert("Contraseña actualizada.");
-      dlg.close(); dlg.remove();
+
+    dlg.addEventListener("click", async (e) => {
+      if (e.target && e.target.id === "rl-copy") {
+        const input = dlg.querySelector("#rl-link");
+        try {
+          await navigator.clipboard.writeText(input.value);
+          setMsg("Enlace copiado al portapapeles ✓", "ok");
+        } catch (_) {
+          input.select();
+          document.execCommand("copy");
+          setMsg("Enlace seleccionado. Usa Ctrl/Cmd + C para copiar.", "ok");
+        }
+      }
     });
   }
 

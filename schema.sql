@@ -45,3 +45,14 @@ CREATE TABLE IF NOT EXISTS task_notes (
   FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
   INDEX idx_task (task_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id VARCHAR(32) PRIMARY KEY,
+  user_id VARCHAR(32) NOT NULL,
+  token VARCHAR(64) NOT NULL UNIQUE,
+  expires_at BIGINT NOT NULL,
+  used TINYINT(1) DEFAULT 0,
+  created_at BIGINT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_token (token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -299,12 +299,90 @@ try {
         }
 
         case 'users/reset_password': {
+            // Retrocompat: por si hay clientes viejos. Hoy el flujo usa generate_reset_link.
             $me = require_role(['administrador']);
             $b = read_json_body();
             $p = $b['password'] ?? '';
             if (strlen($p) < 6) json_err('La contraseña debe tener al menos 6 caracteres.');
             db()->prepare("UPDATE users SET password_hash = ? WHERE id = ?")
                 ->execute([password_hash($p, PASSWORD_BCRYPT), $b['id'] ?? '']);
+            json_out(['ok' => true]);
+        }
+
+        case 'users/generate_reset_link': {
+            $me = require_role(['administrador']);
+            $b = read_json_body();
+            $id = $b['id'] ?? '';
+            $stmt = db()->prepare("SELECT id, name, username FROM users WHERE id = ? LIMIT 1");
+            $stmt->execute([$id]);
+            $u = $stmt->fetch();
+            if (!$u) json_err('Usuario no encontrado.', 404);
+            // Marca como usados los tokens vivos previos para ese usuario
+            db()->prepare("UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0")->execute([$id]);
+            // Genera el nuevo token
+            $token = bin2hex(random_bytes(32));
+            $now = (int)(microtime(true) * 1000);
+            $expiresAt = $now + 24 * 60 * 60 * 1000; // 24 horas
+            $recordId = bin2hex(random_bytes(8)) . dechex($now);
+            db()->prepare(
+                "INSERT INTO password_resets (id, user_id, token, expires_at, used, created_at) VALUES (?, ?, ?, ?, 0, ?)"
+            )->execute([$recordId, $id, $token, $expiresAt, $now]);
+            json_out([
+                'ok' => true,
+                'token' => $token,
+                'link' => 'reset.html?token=' . $token,
+                'expires_at' => $expiresAt,
+                'user' => ['id' => $u['id'], 'name' => $u['name'], 'username' => $u['username']],
+            ]);
+        }
+
+        case 'auth/reset_check': {
+            $token = $_GET['token'] ?? '';
+            if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+                json_out(['ok' => false, 'reason' => 'not_found', 'error' => 'Enlace inválido.']);
+            }
+            $stmt = db()->prepare(
+                "SELECT pr.*, u.name, u.username, u.status
+                 FROM password_resets pr JOIN users u ON u.id = pr.user_id
+                 WHERE pr.token = ? LIMIT 1"
+            );
+            $stmt->execute([$token]);
+            $row = $stmt->fetch();
+            if (!$row) json_out(['ok' => false, 'reason' => 'not_found', 'error' => 'Enlace inválido.']);
+            if ((int)$row['used'] === 1) json_out(['ok' => false, 'reason' => 'used', 'error' => 'Este enlace ya fue usado.']);
+            if ((int)$row['expires_at'] < (int)(microtime(true) * 1000)) {
+                json_out(['ok' => false, 'reason' => 'expired', 'error' => 'El enlace ha expirado.']);
+            }
+            json_out([
+                'ok' => true,
+                'user' => ['name' => $row['name'], 'username' => $row['username']],
+            ]);
+        }
+
+        case 'auth/reset_submit': {
+            $b = read_json_body();
+            $token = $b['token'] ?? '';
+            $password = $b['password'] ?? '';
+            if (!preg_match('/^[a-f0-9]{64}$/', $token)) json_err('Enlace inválido.');
+            if (strlen($password) < 6) json_err('La contraseña debe tener al menos 6 caracteres.');
+            $stmt = db()->prepare("SELECT * FROM password_resets WHERE token = ? LIMIT 1");
+            $stmt->execute([$token]);
+            $row = $stmt->fetch();
+            if (!$row) json_err('Enlace inválido.');
+            if ((int)$row['used'] === 1) json_err('Este enlace ya fue usado.');
+            if ((int)$row['expires_at'] < (int)(microtime(true) * 1000)) json_err('El enlace ha expirado.');
+
+            $pdo = db();
+            $pdo->beginTransaction();
+            try {
+                $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?")
+                    ->execute([password_hash($password, PASSWORD_BCRYPT), $row['user_id']]);
+                $pdo->prepare("UPDATE password_resets SET used = 1 WHERE token = ?")->execute([$token]);
+                $pdo->commit();
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
             json_out(['ok' => true]);
         }
 

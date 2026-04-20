@@ -2239,6 +2239,28 @@ html[data-theme="light"] body {
   font-weight: 500;
 }
 
+/* Diálogo de restablecer contraseña (link) */
+dialog.reset-link-dialog { max-width: 480px; }
+dialog.reset-link-dialog .reset-link-box {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 10px 0;
+}
+dialog.reset-link-dialog #rl-link {
+  width: 100%;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+  color: var(--text);
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+dialog.reset-link-dialog .row { justify-content: center; flex-wrap: wrap; }
+[data-theme="light"] dialog.reset-link-dialog .reset-link-box { background: var(--m-bg); border-color: var(--m-border); }
+[data-theme="light"] dialog.reset-link-dialog #rl-link { background: var(--m-surface); border-color: var(--m-border); color: var(--m-text); }
+
 /* =====================================================
    Tema CLARO - ajustes específicos de la versión móvil
    (drawer del hamburger, bordes y sombras más suaves)
