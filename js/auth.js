@@ -1,78 +1,60 @@
-/* Funciones de autenticación compartidas */
+/* Funciones de autenticación (client) respaldadas por api.php */
 (function (global) {
-  function generateUsername(name, email) {
-    const base = (email.split("@")[0] || name || "usuario")
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]/g, "")
-      .slice(0, 20) || "usuario";
-    let candidate = base;
-    let i = 1;
-    while (DB.getUserByUsername(candidate)) {
-      candidate = `${base}${i++}`;
-      if (i > 9999) { candidate = base + Date.now().toString(36); break; }
-    }
-    return candidate;
+
+  async function apiPost(action, body) {
+    const res = await fetch(`api.php?action=${encodeURIComponent(action)}`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+    const j = await res.json().catch(() => ({ ok: false, error: "Respuesta inválida del servidor." }));
+    return j;
   }
 
   const Auth = {
-    login(identifier, password) {
-      const user = DB.getUserByIdentifier(identifier);
-      if (!user || user.password !== password) return { ok: false, error: "Usuario o contraseña incorrectos." };
-      if (user.status === "pending")  return { ok: false, state: "pending",  user, error: "Tu registro aún no ha sido aprobado." };
-      if (user.status === "rejected") return { ok: false, state: "rejected", user, error: "Tu solicitud fue rechazada." };
-      if (user.status === "inactive") return { ok: false, state: "inactive", user, error: "Tu cuenta fue dada de baja." };
-      DB.setSession({ userId: user.id });
-      return { ok: true, user };
+    async login(identifier, password) {
+      const res = await apiPost("auth/login", { identifier, password });
+      if (res.ok && res.user) {
+        // Sincroniza con el cache local
+        DB.setSession({ userId: res.user.id });
+        if (!DB.getUserById(res.user.id)) DB.getUsers().push(res.user);
+      }
+      return res;
     },
 
-    register(data) {
-      if (!data.password || !data.name || !data.email || !data.phone)
-        return { ok: false, error: "Faltan campos obligatorios." };
-      const email = data.email.trim().toLowerCase();
-      if (DB.getUsers().find(u => u.email.toLowerCase() === email))
-        return { ok: false, error: "Ese correo ya está registrado." };
-      const user = DB.addUser({
-        name: data.name.trim(),
-        phone: data.phone.trim(),
-        email: data.email.trim(),
-        username: generateUsername(data.name, email),
-        password: data.password,
-        role: "",
-        status: "pending",
-        avatar: data.avatar || "",
+    async register(data) {
+      const res = await apiPost("auth/register", {
+        name: data.name, phone: data.phone, email: data.email,
+        password: data.password, avatar: data.avatar || null,
       });
-      // No iniciamos sesión: la cuenta queda pendiente de aprobación.
-      return { ok: true, user, state: "pending" };
+      return res;
     },
 
-    currentUser() {
+    async currentUser() {
       const s = DB.getSession();
-      if (!s) return null;
-      return DB.getUserById(s.userId);
+      return s ? DB.getUserById(s.userId) : null;
     },
 
-    logout() { DB.clearSession(); },
-
-    generateResetCode(identifier) {
-      const user = DB.getUserByIdentifier(identifier);
-      if (!user) return { ok: false, error: "No encontramos una cuenta con ese dato." };
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      DB.setResetCode(user.id, code);
-      return { ok: true, code, userId: user.id, email: user.email };
+    async logout() {
+      try { await apiPost("auth/logout", {}); } catch (_) {}
+      DB.clearSession();
     },
 
-    resetPassword(userId, code, newPassword) {
-      if (!newPassword || newPassword.length < 6) return { ok: false, error: "La contraseña debe tener mínimo 6 caracteres." };
-      if (!DB.consumeResetCode(userId, code)) return { ok: false, error: "Código inválido o expirado." };
-      DB.updateUser(userId, { password: newPassword });
-      return { ok: true };
-    },
+    // Sin recuperación por ahora (queda el hueco para cuando se conecte email)
+    async generateResetCode() { return { ok: false, error: "No disponible." }; },
+    async resetPassword()    { return { ok: false, error: "No disponible." }; },
 
-    requireAuth(allowedRoles) {
-      const user = this.currentUser();
-      if (!user) { window.location.href = "index.html"; return null; }
-      if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Dashboard/reports llaman a esto al arrancar
+    async requireAuth(allowedRoles) {
+      const bootstrap = await DB.load();
+      if (!bootstrap.authed) {
         window.location.href = "index.html";
+        return null;
+      }
+      const user = bootstrap.me;
+      if (allowedRoles && !allowedRoles.includes(user.role)) {
+        window.location.href = "dashboard.html";
         return null;
       }
       return user;

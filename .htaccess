@@ -1,0 +1,34 @@
+# UTF-8 por defecto
+AddDefaultCharset UTF-8
+
+# Bloquear acceso directo a archivos sensibles
+<FilesMatch "^(config\.php|schema\.sql|install\.php|\.gitignore|\.htaccess|composer\.(json|lock))$">
+  Require all denied
+</FilesMatch>
+
+# Bloquear archivos ocultos
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# Cache de recursos estáticos (imágenes y fuentes)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/png  "access plus 7 days"
+  ExpiresByType image/jpeg "access plus 7 days"
+  ExpiresByType image/webp "access plus 7 days"
+</IfModule>
+
+# No cachear HTML ni API
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|php)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
+
+# Comprimir texto
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>

@@ -1,6 +1,6 @@
 /* Panel principal. Renderiza según el rol: colaborador, empleador, supervisor, administrador */
-(function () {
-  const user = Auth.requireAuth();
+(async function () {
+  const user = await Auth.requireAuth();
   if (!user) return;
 
   // Cabecera
@@ -10,8 +10,8 @@
   const avatarEl = document.getElementById("user-avatar");
   avatarEl.src = user.avatar || defaultAvatarDataURL(user.name);
 
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    Auth.logout();
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    await Auth.logout();
     window.location.href = "index.html";
   });
 
@@ -430,9 +430,7 @@
       if (canManageNotes) {
         listEl.querySelectorAll("[data-note-del]").forEach(b =>
           b.addEventListener("click", () => {
-            const curr = DB.getTasks().find(x => x.id === t.id);
-            const kept = (curr.notes || []).filter(n => n.id !== b.dataset.noteDel);
-            DB.updateTask(t.id, { notes: kept });
+            DB.deleteTaskNote(t.id, b.dataset.noteDel);
             drawNotes();
             onDone && onDone();
           })
@@ -447,9 +445,7 @@
         const text = textEl.value.trim();
         if (!text) return;
         const vis = dlg.querySelector('[name="note-vis"]:checked').value;
-        const curr = DB.getTasks().find(x => x.id === t.id);
-        const note = { id: uid(), authorId: user.id, text, visibility: vis, createdAt: Date.now() };
-        DB.updateTask(t.id, { notes: [...(curr.notes || []), note] });
+        DB.addTaskNote(t.id, { authorId: user.id, text, visibility: vis });
         textEl.value = "";
         drawNotes();
         onDone && onDone();

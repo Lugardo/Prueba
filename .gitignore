@@ -1,0 +1,19 @@
+# Credenciales y archivos locales
+config.php
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Artefactos
+node_modules/
+.cache/

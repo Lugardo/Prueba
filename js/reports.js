@@ -1,11 +1,11 @@
 /* Página de reportes accesible para supervisor, empleador y admin */
-(function () {
-  const user = Auth.requireAuth(["supervisor", "empleador", "administrador"]);
+(async function () {
+  const user = await Auth.requireAuth(["supervisor", "empleador", "administrador"]);
   if (!user) return;
 
   document.getElementById("role-tag").textContent = user.role;
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    Auth.logout();
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    await Auth.logout();
     window.location.href = "index.html";
   });
 

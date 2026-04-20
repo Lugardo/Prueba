@@ -1,10 +1,13 @@
 /* Lógica de la página de acceso (index.html) */
-(function () {
-  // Si ya hay sesión, ir al panel
-  if (Auth.currentUser()) {
-    window.location.replace("dashboard.html");
-    return;
-  }
+(async function () {
+  // Si ya hay sesión viva en el servidor, ir al panel
+  try {
+    const probe = await DB.load();
+    if (probe && probe.authed) {
+      window.location.replace("dashboard.html");
+      return;
+    }
+  } catch (_) { /* sin sesión: continuamos */ }
 
   // ---- Tabs ----
   const tabs = document.querySelectorAll(".tab");
@@ -73,10 +76,11 @@
   }
 
   // ---- Login ----
-  forms.login.addEventListener("submit", (e) => {
+  forms.login.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(forms.login);
-    const res = Auth.login(fd.get("username").trim(), fd.get("password"));
+    setMsg("login-msg", "Conectando...", "");
+    const res = await Auth.login(fd.get("username").trim(), fd.get("password"));
     if (res.ok) {
       setMsg("login-msg", "Acceso concedido. Despegando...", "ok");
       setTimeout(() => window.location.href = "dashboard.html", 500);
@@ -84,7 +88,7 @@
     }
     if (res.state === "pending")  return showPendingContact(false);
     if (res.state === "rejected" || res.state === "inactive") return showView("blackhole");
-    setMsg("login-msg", res.error, "error");
+    setMsg("login-msg", res.error || "Error al iniciar sesión.", "error");
   });
 
   // ---- Registro + avatar ----
@@ -108,17 +112,18 @@
     reader.readAsDataURL(file);
   });
 
-  forms.register.addEventListener("submit", (e) => {
+  forms.register.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(forms.register);
-    const res = Auth.register({
+    setMsg("register-msg", "Enviando...", "");
+    const res = await Auth.register({
       name: fd.get("name"),
       phone: fd.get("phone"),
       email: fd.get("email"),
       password: fd.get("password"),
       avatar: avatarDataURL,
     });
-    if (!res.ok) return setMsg("register-msg", res.error, "error");
+    if (!res.ok) return setMsg("register-msg", res.error || "Error al registrar.", "error");
     forms.register.reset();
     if (avatarPreview) avatarPreview.innerHTML = `<span>Sin imagen</span>`;
     avatarDataURL = "";
