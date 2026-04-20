@@ -40,8 +40,8 @@
     const btns = document.querySelectorAll('.theme-toggle');
     const current = get();
     btns.forEach(b => {
-      b.textContent = current === 'aster' ? '☀️' : '🌌';
       b.setAttribute('title', current === 'aster' ? 'Cambiar a tema claro' : 'Cambiar a tema Aster');
+      b.setAttribute('aria-pressed', current === 'aster' ? 'true' : 'false');
     });
   }
 

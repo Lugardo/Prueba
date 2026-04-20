@@ -87,10 +87,10 @@ body { background: transparent; }
 /* Ocultar el fondo espacial (estrellas, cometas, asteroides, twinkles) en tema claro */
 [data-theme="light"] .space-bg { display: none !important; }
 
-/* Swap de logo según tema */
-.logo-light-only { display: none; }
-[data-theme="light"] .logo-aster-only { display: none; }
-[data-theme="light"] .logo-light-only { display: block; }
+/* Swap de logo según tema (usamos .logo img para vencer a .logo img{display:block}) */
+.logo img.logo-light-only { display: none; }
+[data-theme="light"] .logo img.logo-aster-only { display: none; }
+[data-theme="light"] .logo img.logo-light-only { display: block; }
 
 /* ---------- Space Background ---------- */
 .space-bg {
@@ -2175,37 +2175,94 @@ html[data-theme="light"] body {
 [data-theme="light"] .form-msg.ok    { color: var(--m-ok); }
 [data-theme="light"] .hint { color: var(--m-muted); }
 
-/* Botón toggle de tema (ambos temas) */
+/* ==================== Theme toggle (pill switch) ==================== */
 .theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 76px;
+  height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(138,212,255,0.25);
+  background: rgba(2,8,33,0.55);
   cursor: pointer;
-  border: 1px solid var(--glass-border);
-  background: var(--btn-ghost-bg, rgba(255,255,255,0.05));
-  color: var(--btn-ghost-text, #fff);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 1.1rem;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+.theme-toggle:hover {
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 3px rgba(61,139,255,0.18), inset 0 1px 2px rgba(0,0,0,0.2);
+}
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(61,139,255,0.35), inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.theme-toggle .tt-icon {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
   line-height: 1;
-  height: 40px;
-  min-width: 44px;
-  transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  filter: grayscale(0.35);
+  opacity: 0.6;
 }
-.theme-toggle:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px rgba(61,139,255,0.15); }
+
+/* Thumb (círculo que se desliza) */
+.theme-toggle .tt-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 30px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3d8bff, #1e6bd6);
+  box-shadow: 0 2px 8px rgba(30,107,214,0.55), 0 0 0 1px rgba(255,255,255,0.15) inset;
+  transition: transform 0.28s cubic-bezier(0.4, 0.8, 0.2, 1.1), background 0.25s;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Estado en Aster: thumb a la derecha, icono luna destacado */
+[data-theme="aster"] .theme-toggle .tt-thumb { transform: translateX(40px); }
+[data-theme="aster"] .theme-toggle .tt-aster { opacity: 1; filter: none; transform: scale(1.05); }
+[data-theme="aster"] .theme-toggle .tt-light { opacity: 0.45; }
+
+/* Estado en claro: thumb a la izquierda, icono sol destacado */
 [data-theme="light"] .theme-toggle {
-  background: var(--m-surface);
-  border-color: var(--m-border);
-  color: var(--m-text);
+  background: #e9eef5;
+  border-color: #cfd7e2;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.06);
 }
-[data-theme="light"] .theme-toggle:hover { background: var(--m-primary-soft); box-shadow: 0 0 0 3px rgba(30,107,214,0.12); }
+[data-theme="light"] .theme-toggle:hover { border-color: var(--m-primary); box-shadow: 0 0 0 3px rgba(30,107,214,0.14), inset 0 1px 2px rgba(15,23,42,0.06); }
+[data-theme="light"] .theme-toggle .tt-thumb {
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.15), 0 0 0 1px rgba(15,23,42,0.05);
+}
+[data-theme="light"] .theme-toggle .tt-light { opacity: 1; filter: none; transform: scale(1.05); }
+[data-theme="light"] .theme-toggle .tt-aster { opacity: 0.4; }
 
 /* Toggle flotante en el auth-card */
+.auth-card { position: relative; }
 .auth-theme-toggle {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 3;
 }
-[data-theme="aster"] .auth-card { position: relative; }
-[data-theme="light"] .auth-card { position: relative; }
 
-/* Evita conflicto con el btn-ghost "auth-body" que renombramos */
-.auth-wrapper .theme-toggle { font-size: 1.15rem; padding: 8px 10px; }
+/* Escala pequeña en mobile */
+@media (max-width: 420px) {
+  .theme-toggle { width: 66px; height: 30px; }
+  .theme-toggle .tt-thumb { width: 26px; height: 24px; }
+  [data-theme="aster"] .theme-toggle .tt-thumb { transform: translateX(36px); }
+  .theme-toggle .tt-icon { font-size: 0.85rem; }
+}
