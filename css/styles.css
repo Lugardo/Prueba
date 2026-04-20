@@ -328,10 +328,11 @@ body { background: transparent; }
   background: transparent;
   color: var(--blue-200);
   border: none;
-  padding: 10px;
+  padding: 12px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 16px;
   transition: all 0.25s ease;
 }
 .tab:hover { color: #fff; }
@@ -2226,4 +2227,87 @@ html[data-theme="light"] body {
 .contact-actions .btn-primary,
 .contact-actions .btn-ghost {
   font-size: 16px !important;
+}
+
+/* =====================================================
+   Botón Cerrar sesión: fuente 16px y padding cómodo
+   en cualquier tamaño de pantalla.
+   ===================================================== */
+#logout-btn {
+  font-size: 16px !important;
+  padding: 10px 16px !important;
+  font-weight: 500;
+}
+
+/* =====================================================
+   Tema CLARO - ajustes específicos de la versión móvil
+   (drawer del hamburger, bordes y sombras más suaves)
+   ===================================================== */
+@media (max-width: 720px) {
+  /* Drawer del menú hamburger: fondo blanco en claro */
+  [data-theme="light"] .topbar-right {
+    background: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid var(--m-border);
+    box-shadow: 0 12px 24px rgba(20, 40, 80, 0.08);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  [data-theme="light"] .topbar-right .user-chip {
+    background: var(--m-bg);
+    border-color: var(--m-border);
+  }
+  [data-theme="light"] .topbar-right .user-chip strong { color: var(--m-text); }
+  [data-theme="light"] .topbar-right .user-chip small  { color: var(--m-muted); }
+
+  /* Botón hamburguesa en claro */
+  [data-theme="light"] .hamburger {
+    background: var(--m-primary-soft);
+    border-color: var(--m-border);
+  }
+  [data-theme="light"] .hamburger span { background: var(--m-primary); }
+  [data-theme="light"] .hamburger:hover { background: #dbe6f9; box-shadow: 0 0 0 3px rgba(30,107,214,0.12); }
+
+  /* Topbar compacto en móvil */
+  [data-theme="light"] .topbar {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--m-border);
+  }
+
+  /* Calendario / filtros en tema claro + móvil */
+  [data-theme="light"] .cal-filters,
+  [data-theme="light"] .filter-bar {
+    background: var(--m-surface);
+    border-color: var(--m-border);
+  }
+  [data-theme="light"] .cal-cell { background: var(--m-surface); }
+  [data-theme="light"] .cal-cell.empty { background: transparent; }
+
+  /* Diálogos: backdrop más tenue */
+  [data-theme="light"] dialog::backdrop {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  /* Notas: contraste claro */
+  [data-theme="light"] .notes-editor,
+  [data-theme="light"] .notes-add textarea { background: var(--m-surface); }
+  [data-theme="light"] .note-row { background: var(--m-bg); }
+
+  /* Stats pills del calendario en claro */
+  [data-theme="light"] .cal-stat-pill { background: var(--m-primary-soft); }
+  [data-theme="light"] .cal-stat-pill strong { color: var(--m-primary); }
+
+  /* Tarjetas del admin (mobile) con mejor contraste */
+  [data-theme="light"] .table-wrap tr {
+    background: var(--m-surface);
+    border-color: var(--m-border);
+    box-shadow: var(--m-shadow-sm);
+  }
+
+  /* Pending card en claro, móvil */
+  [data-theme="light"] .pending-card {
+    background: #fffbeb;
+    border-color: #fde68a;
+  }
 }
