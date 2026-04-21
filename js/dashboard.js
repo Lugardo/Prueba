@@ -1108,9 +1108,11 @@
     });
   }
 
-  /* Pickers de hora/fecha: alias a window.Pickers para minimizar diff */
-  const attachTimePicker = (input) => window.Pickers.attachTimePicker(input);
-  const attachDatePicker = (input) => window.Pickers.attachDatePicker(input);
+  /* Pickers de hora/fecha: wrappers sobre window.Pickers.
+     Se declaran como funciones para que se hoisteen y estén disponibles
+     antes de que renderColaborador (que se llama al inicio) las use. */
+  function attachTimePicker(input) { return window.Pickers.attachTimePicker(input); }
+  function attachDatePicker(input) { return window.Pickers.attachDatePicker(input); }
 
   /* =================== Calendario =================== */
   function renderCalendar(container, allTasks, cardOpts = { canChangeStatus: true, canDelete: true }) {
