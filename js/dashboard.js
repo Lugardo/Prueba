@@ -323,6 +323,7 @@
           <span class="planner-text" data-edit="${it.id}" title="Doble clic para editar">${escapeHtml(it.text)}</span>
           <div class="planner-actions">
             <button type="button" class="planner-register" data-to-task="${it.id}" title="Pasar a reporte de tarea">📋 Registrar</button>
+            <button type="button" class="planner-edit-btn" data-edit-btn="${it.id}" title="Editar" aria-label="Editar">✏️</button>
             <button type="button" class="planner-del" data-del="${it.id}" aria-label="Borrar" title="Eliminar">✕</button>
           </div>
         </li>
@@ -347,6 +348,12 @@
       );
       listEl.querySelectorAll("[data-edit]").forEach(sp =>
         sp.addEventListener("dblclick", () => startInlineEdit(sp))
+      );
+      listEl.querySelectorAll("[data-edit-btn]").forEach(b =>
+        b.addEventListener("click", () => {
+          const span = b.closest(".planner-item").querySelector(".planner-text");
+          if (span) startInlineEdit(span);
+        })
       );
       listEl.querySelectorAll("[data-to-task]").forEach(b =>
         b.addEventListener("click", () => {

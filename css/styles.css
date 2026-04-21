@@ -866,6 +866,11 @@ input[readonly]:not(.time-field):not(.date-field) {
   letter-spacing: 2px;
   cursor: default;
 }
+[data-theme="light"] input[readonly]:not(.time-field):not(.date-field) {
+  background: var(--m-primary-soft);
+  color: var(--m-primary);
+  border-color: var(--m-border);
+}
 
 /* Campo de hora estilizado con ícono de reloj */
 .time-field {
@@ -2348,6 +2353,7 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
   flex-shrink: 0;
 }
 .planner-register,
+.planner-edit-btn,
 .planner-del {
   background: transparent;
   border: 1px solid transparent;
@@ -2367,6 +2373,16 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
 .planner-register:hover {
   background: rgba(61,139,255,0.15);
   border-color: var(--blue-400);
+}
+.planner-edit-btn {
+  color: var(--warn);
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-color: rgba(255,209,102,0.25);
+}
+.planner-edit-btn:hover {
+  background: rgba(255,209,102,0.18);
+  border-color: rgba(255,209,102,0.55);
 }
 .planner-del {
   color: var(--danger);
@@ -2423,6 +2439,8 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
 [data-theme="light"] .planner-empty { color: var(--m-muted); }
 [data-theme="light"] .planner-register { color: var(--m-primary); border-color: rgba(30,107,214,0.3); }
 [data-theme="light"] .planner-register:hover { background: var(--m-primary-soft); border-color: var(--m-primary); }
+[data-theme="light"] .planner-edit-btn { color: var(--m-warn); border-color: rgba(217,119,6,0.3); }
+[data-theme="light"] .planner-edit-btn:hover { background: rgba(217,119,6,0.12); border-color: var(--m-warn); }
 [data-theme="light"] .planner-del { color: var(--m-danger); }
 
 /* =====================================================
