@@ -359,6 +359,61 @@ try {
             ]);
         }
 
+        /* ---------- PLANNER (TODOs personales) ---------- */
+
+        case 'planner/list': {
+            $me = require_login();
+            $stmt = db()->prepare("SELECT id, text, done, created_at FROM planner_items WHERE user_id = ? ORDER BY done ASC, created_at DESC");
+            $stmt->execute([$me['id']]);
+            $items = array_map(function($r){
+                return ['id'=>$r['id'],'text'=>$r['text'],'done'=>(int)$r['done']===1,'createdAt'=>(int)$r['created_at']];
+            }, $stmt->fetchAll());
+            json_out(['ok' => true, 'items' => $items]);
+        }
+
+        case 'planner/add': {
+            $me = require_login();
+            $b = read_json_body();
+            $text = trim((string)($b['text'] ?? ''));
+            if ($text === '') json_err('El texto no puede estar vacío.');
+            if (mb_strlen($text) > 500) json_err('Máximo 500 caracteres.');
+            $id = uid();
+            $now = (int)(microtime(true)*1000);
+            db()->prepare("INSERT INTO planner_items (id, user_id, text, done, created_at) VALUES (?, ?, ?, 0, ?)")
+                ->execute([$id, $me['id'], $text, $now]);
+            json_out(['ok'=>true, 'item'=>['id'=>$id,'text'=>$text,'done'=>false,'createdAt'=>$now]]);
+        }
+
+        case 'planner/toggle': {
+            $me = require_login();
+            $b = read_json_body();
+            $id = $b['id'] ?? '';
+            $done = !empty($b['done']) ? 1 : 0;
+            db()->prepare("UPDATE planner_items SET done = ? WHERE id = ? AND user_id = ?")
+                ->execute([$done, $id, $me['id']]);
+            json_out(['ok'=>true]);
+        }
+
+        case 'planner/update': {
+            $me = require_login();
+            $b = read_json_body();
+            $id = $b['id'] ?? '';
+            $text = trim((string)($b['text'] ?? ''));
+            if ($text === '') json_err('El texto no puede estar vacío.');
+            if (mb_strlen($text) > 500) json_err('Máximo 500 caracteres.');
+            db()->prepare("UPDATE planner_items SET text = ? WHERE id = ? AND user_id = ?")
+                ->execute([$text, $id, $me['id']]);
+            json_out(['ok'=>true]);
+        }
+
+        case 'planner/delete': {
+            $me = require_login();
+            $b = read_json_body();
+            db()->prepare("DELETE FROM planner_items WHERE id = ? AND user_id = ?")
+                ->execute([$b['id'] ?? '', $me['id']]);
+            json_out(['ok'=>true]);
+        }
+
         case 'auth/reset_submit': {
             $b = read_json_body();
             $token = $b['token'] ?? '';

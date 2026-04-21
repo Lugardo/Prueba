@@ -147,6 +147,12 @@
     `).join("");
   }
 
+  // Date pickers custom en Desde / Hasta
+  if (window.Pickers) {
+    window.Pickers.attachDatePicker(document.getElementById("rep-from"));
+    window.Pickers.attachDatePicker(document.getElementById("rep-to"));
+  }
+
   // Listeners de filtros
   document.getElementById("rep-user").addEventListener("change", e => { filters.userId = e.target.value; draw(); });
   document.getElementById("rep-status").addEventListener("change", e => { filters.status = e.target.value; draw(); });

@@ -2230,6 +2230,239 @@ html[data-theme="light"] body {
 }
 
 /* =====================================================
+   Planner (TODO personal)
+   ===================================================== */
+.planner-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.planner-banner h3 { margin: 0 0 4px; }
+.planner-banner p { margin: 0; color: var(--text-muted); font-size: 0.92rem; }
+
+dialog.planner-dialog {
+  max-width: 460px;
+  width: 94%;
+}
+dialog.planner-dialog h3 { margin: 0 0 14px; }
+
+.planner-add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.planner-add input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.planner-add input:focus {
+  outline: none;
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 3px rgba(61,139,255,0.25);
+}
+.planner-add button {
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+
+.planner-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.planner-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.planner-item:hover { background: rgba(61,139,255,0.08); }
+.planner-item label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+}
+.planner-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue-400);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.planner-item .planner-text {
+  flex: 1;
+  color: var(--text);
+  word-break: break-word;
+  user-select: text;
+}
+.planner-item.done .planner-text {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+.planner-item .planner-del {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--danger);
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.planner-item .planner-del:hover {
+  background: rgba(255,107,107,0.15);
+  border-color: rgba(255,107,107,0.4);
+}
+.planner-edit-input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--blue-400);
+  color: var(--input-text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.planner-empty {
+  text-align: center;
+  padding: 22px 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Tema claro override: superficie blanca en items */
+[data-theme="light"] .planner-add input,
+[data-theme="light"] .planner-item,
+[data-theme="light"] .planner-edit-input {
+  background: var(--m-surface);
+  border-color: var(--m-border);
+  color: var(--m-text);
+}
+[data-theme="light"] .planner-item:hover { background: var(--m-primary-soft); }
+[data-theme="light"] .planner-item .planner-text { color: var(--m-text); }
+[data-theme="light"] .planner-empty { color: var(--m-muted); }
+
+/* =====================================================
+   Date picker (modal calendario)
+   ===================================================== */
+dialog.date-picker-dialog {
+  max-width: 360px;
+  width: 94%;
+  padding: 18px;
+}
+.dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 6px;
+}
+.dp-title {
+  flex: 1;
+  text-align: center;
+  color: var(--text);
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+.dp-nav {
+  font-size: 1.2rem !important;
+  line-height: 1;
+  padding: 6px 12px !important;
+  min-width: 38px;
+}
+.dp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.dp-weekdays span {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.dp-cell {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 10px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dp-cell:hover {
+  background: rgba(61,139,255,0.18);
+  border-color: var(--blue-400);
+}
+.dp-cell.outside { opacity: 0.35; }
+.dp-cell.today {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+.dp-cell.selected {
+  background: linear-gradient(135deg, var(--blue-400), var(--blue-600));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(30,107,214,0.45);
+  font-weight: 700;
+}
+.dp-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.dp-actions button { flex: 1; min-width: 0; padding: 9px 10px; font-size: 0.88rem; }
+
+/* Input con estilo date-field */
+.date-field {
+  cursor: pointer;
+}
+
+/* Tema claro */
+[data-theme="light"] dialog.date-picker-dialog { background: var(--m-surface); color: var(--m-text); }
+[data-theme="light"] .dp-title { color: var(--m-text); }
+[data-theme="light"] .dp-weekdays span { color: var(--m-muted); }
+[data-theme="light"] .dp-cell { color: var(--m-text); }
+[data-theme="light"] .dp-cell:hover { background: var(--m-primary-soft); border-color: var(--m-primary); }
+[data-theme="light"] .dp-cell.today { border-color: var(--m-primary); color: var(--m-primary); }
+[data-theme="light"] .dp-cell.selected { background: var(--m-primary); color: #fff; box-shadow: 0 2px 8px rgba(30,107,214,0.25); }
+
+/* =====================================================
    Botón Cerrar sesión: fuente 16px y padding cómodo
    en cualquier tamaño de pantalla.
    ===================================================== */

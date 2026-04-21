@@ -75,6 +75,14 @@
         <div class="stat"><div class="num">${byStatus("trabajando") + byStatus("revision")}</div><div class="lbl">En proceso</div></div>
       </div>
 
+      <section class="card planner-banner">
+        <div>
+          <h3>📝 Planificador</h3>
+          <p>Anota pendientes personales para acordarte durante el día.</p>
+        </div>
+        <button class="btn-primary" id="open-planner">Abrir planificador</button>
+      </section>
+
       <section class="card">
         <h3>Registrar nueva tarea</h3>
         <form id="task-form" class="form active">
@@ -151,6 +159,8 @@
     });
 
     renderCalendar(document.getElementById("calendar"), tasks);
+
+    document.getElementById("open-planner").addEventListener("click", openPlannerDialog);
 
     const list = document.getElementById("my-tasks");
     if (!tasks.length) {
@@ -263,6 +273,140 @@
         </div>
       </li>
     `;
+  }
+
+  /* =================== PLANIFICADOR (TODO personal) =================== */
+  function openPlannerDialog() {
+    const dlg = document.createElement("dialog");
+    dlg.className = "planner-dialog";
+    dlg.innerHTML = `
+      <h3>📝 Mis pendientes</h3>
+      <form id="planner-add" class="planner-add">
+        <input type="text" maxlength="500" placeholder="¿Qué tienes pendiente?" required />
+        <button type="submit" class="btn-ok">Agregar</button>
+      </form>
+      <ul class="planner-list" id="planner-list"></ul>
+      <p class="planner-empty" id="planner-empty" hidden>Aún no tienes pendientes. ¡Agrega el primero!</p>
+      <div class="row">
+        <button type="button" class="btn-ghost" id="planner-close">Cerrar</button>
+      </div>
+    `;
+    document.body.appendChild(dlg);
+    dlg.showModal();
+
+    const listEl  = dlg.querySelector("#planner-list");
+    const emptyEl = dlg.querySelector("#planner-empty");
+    const addForm = dlg.querySelector("#planner-add");
+    const addInput= addForm.querySelector("input");
+
+    async function fetchJSON(action, opts = {}) {
+      const url = "api.php?action=" + encodeURIComponent(action);
+      const res = await fetch(url, {
+        method: opts.method || "GET",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+      });
+      return res.json().catch(() => ({ ok: false, error: "Respuesta inválida" }));
+    }
+
+    function renderItems(items) {
+      if (!items.length) {
+        listEl.innerHTML = "";
+        emptyEl.hidden = false;
+        return;
+      }
+      emptyEl.hidden = true;
+      listEl.innerHTML = items.map(it => `
+        <li class="planner-item ${it.done ? "done" : ""}" data-id="${it.id}">
+          <label>
+            <input type="checkbox" ${it.done ? "checked" : ""} data-toggle="${it.id}" />
+            <span class="planner-text" data-edit="${it.id}">${escapeHtml(it.text)}</span>
+          </label>
+          <button type="button" class="planner-del" data-del="${it.id}" aria-label="Borrar">✕</button>
+        </li>
+      `).join("");
+      wireItems();
+    }
+
+    function wireItems() {
+      listEl.querySelectorAll("[data-toggle]").forEach(cb =>
+        cb.addEventListener("change", async () => {
+          await fetchJSON("planner/toggle", { method: "POST", body: { id: cb.dataset.toggle, done: cb.checked } });
+          cb.closest(".planner-item").classList.toggle("done", cb.checked);
+        })
+      );
+      listEl.querySelectorAll("[data-del]").forEach(b =>
+        b.addEventListener("click", async () => {
+          const id = b.dataset.del;
+          b.closest(".planner-item").remove();
+          if (!listEl.children.length) emptyEl.hidden = false;
+          await fetchJSON("planner/delete", { method: "POST", body: { id } });
+        })
+      );
+      listEl.querySelectorAll("[data-edit]").forEach(sp =>
+        sp.addEventListener("dblclick", () => startInlineEdit(sp))
+      );
+    }
+
+    function startInlineEdit(span) {
+      const id = span.dataset.edit;
+      const original = span.textContent;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = original;
+      input.maxLength = 500;
+      input.className = "planner-edit-input";
+      span.replaceWith(input);
+      input.focus();
+      input.select();
+      let committed = false;
+      const commit = async () => {
+        if (committed) return; committed = true;
+        const newText = input.value.trim();
+        if (!newText || newText === original) {
+          const s = document.createElement("span");
+          s.className = "planner-text";
+          s.dataset.edit = id;
+          s.textContent = original;
+          input.replaceWith(s);
+          s.addEventListener("dblclick", () => startInlineEdit(s));
+          return;
+        }
+        const res = await fetchJSON("planner/update", { method: "POST", body: { id, text: newText } });
+        const s = document.createElement("span");
+        s.className = "planner-text";
+        s.dataset.edit = id;
+        s.textContent = res.ok ? newText : original;
+        input.replaceWith(s);
+        s.addEventListener("dblclick", () => startInlineEdit(s));
+      };
+      input.addEventListener("blur", commit);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commit(); }
+        if (e.key === "Escape") { input.value = original; commit(); }
+      });
+    }
+
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = addInput.value.trim();
+      if (!text) return;
+      const res = await fetchJSON("planner/add", { method: "POST", body: { text } });
+      if (!res.ok) return;
+      addInput.value = "";
+      // Insertar al tope
+      const current = await fetchJSON("planner/list");
+      if (current.ok) renderItems(current.items);
+    });
+
+    dlg.querySelector("#planner-close").addEventListener("click", () => { dlg.close(); dlg.remove(); });
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) { dlg.close(); dlg.remove(); } });
+
+    fetchJSON("planner/list").then(res => {
+      if (res.ok) renderItems(res.items || []);
+      else { emptyEl.textContent = "No se pudo cargar el planificador."; emptyEl.hidden = false; }
+    });
   }
 
   /* =================== EMPLEADOR =================== */
@@ -964,87 +1108,9 @@
     });
   }
 
-  /* =================== Selector de hora personalizado =================== */
-  function attachTimePicker(input) {
-    input.readOnly = true;
-    input.classList.add("time-field");
-    input.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (input._picking) return;
-      input._picking = true;
-      openTimePicker(input, () => { input._picking = false; });
-    });
-  }
-
-  function openTimePicker(input, onClose) {
-    const pad = n => String(n).padStart(2, "0");
-    const now = new Date();
-    const match = /^(\d{1,2}):(\d{2})$/.exec(input.value || "");
-    let h = match ? Math.min(23, +match[1]) : now.getHours();
-    let m = match ? Math.round((+match[2]) / 5) * 5 % 60 : Math.round(now.getMinutes() / 5) * 5 % 60;
-
-    const dlg = document.createElement("dialog");
-    dlg.className = "time-picker-dialog";
-    dlg.innerHTML = `
-      <div class="tp-header">
-        <div class="tp-clock">
-          <span class="tp-h">${pad(h)}</span><span class="tp-sep">:</span><span class="tp-m">${pad(m)}</span>
-        </div>
-        <p class="tp-sub">Elige hora y minutos</p>
-      </div>
-      <div class="tp-cols">
-        <div class="tp-col">
-          <div class="tp-col-label">Hora</div>
-          <div class="tp-col-grid" id="tp-h-grid">
-            ${Array.from({length:24}, (_,i) => `<button type="button" class="tp-cell ${i===h?"active":""}" data-h="${i}">${pad(i)}</button>`).join("")}
-          </div>
-        </div>
-        <div class="tp-col">
-          <div class="tp-col-label">Minutos</div>
-          <div class="tp-col-grid" id="tp-m-grid">
-            ${Array.from({length:12}, (_,i) => i*5).map(mm => `<button type="button" class="tp-cell ${mm===m?"active":""}" data-m="${mm}">${pad(mm)}</button>`).join("")}
-          </div>
-        </div>
-      </div>
-      <div class="tp-actions">
-        <button type="button" class="btn-ghost" id="tp-now">Ahora</button>
-        <button type="button" class="btn-ghost" id="tp-cancel">Cancelar</button>
-        <button type="button" class="btn-primary" id="tp-ok">Aceptar</button>
-      </div>
-    `;
-    document.body.appendChild(dlg);
-    dlg.showModal();
-
-    const hEl = dlg.querySelector(".tp-h");
-    const mEl = dlg.querySelector(".tp-m");
-    function setH(v) { h = v; hEl.textContent = pad(h); dlg.querySelectorAll("[data-h]").forEach(b => b.classList.toggle("active", +b.dataset.h === h)); }
-    function setM(v) { m = v; mEl.textContent = pad(m); dlg.querySelectorAll("[data-m]").forEach(b => b.classList.toggle("active", +b.dataset.m === m)); }
-
-    dlg.querySelector("#tp-h-grid").addEventListener("click", e => {
-      const b = e.target.closest("[data-h]"); if (b) setH(+b.dataset.h);
-    });
-    dlg.querySelector("#tp-m-grid").addEventListener("click", e => {
-      const b = e.target.closest("[data-m]"); if (b) setM(+b.dataset.m);
-    });
-    dlg.querySelector("#tp-now").addEventListener("click", () => {
-      const n = new Date();
-      setH(n.getHours());
-      setM(Math.round(n.getMinutes() / 5) * 5 % 60);
-    });
-    const close = () => {
-      try { dlg.close(); } catch (_) {}
-      dlg.remove();
-      if (typeof onClose === "function") onClose();
-    };
-    dlg.querySelector("#tp-cancel").addEventListener("click", close);
-    dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
-    dlg.querySelector("#tp-ok").addEventListener("click", () => {
-      input.value = pad(h) + ":" + pad(m);
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-      close();
-    });
-  }
+  /* Pickers de hora/fecha: alias a window.Pickers para minimizar diff */
+  const attachTimePicker = (input) => window.Pickers.attachTimePicker(input);
+  const attachDatePicker = (input) => window.Pickers.attachDatePicker(input);
 
   /* =================== Calendario =================== */
   function renderCalendar(container, allTasks, cardOpts = { canChangeStatus: true, canDelete: true }) {
@@ -1195,8 +1261,12 @@
       if (userSel) userSel.addEventListener("change", () => { filters.userId = userSel.value; selected = null; draw(); });
       const statusSel = container.querySelector("#cal-f-status");
       statusSel.addEventListener("change", () => { filters.status = statusSel.value; selected = null; draw(); });
-      container.querySelector("#cal-f-from").addEventListener("change", e => { filters.from = e.target.value; selected = null; draw(); });
-      container.querySelector("#cal-f-to").addEventListener("change", e => { filters.to = e.target.value; selected = null; draw(); });
+      const fromEl = container.querySelector("#cal-f-from");
+      const toEl   = container.querySelector("#cal-f-to");
+      attachDatePicker(fromEl);
+      attachDatePicker(toEl);
+      fromEl.addEventListener("change", e => { filters.from = e.target.value; selected = null; draw(); });
+      toEl.addEventListener("change", e => { filters.to = e.target.value; selected = null; draw(); });
       container.querySelectorAll("[data-preset]").forEach(b =>
         b.addEventListener("click", () => { applyPreset(b.dataset.preset); selected = null; draw(); })
       );
