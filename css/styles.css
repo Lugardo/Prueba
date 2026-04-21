@@ -857,7 +857,9 @@ tr.row-status-rejected { opacity: 0.65; }
   font-family: inherit;
 }
 
-input[readonly] {
+/* El estilo "chip" oscuro del readonly solo aplica al campo de Tiempo calculado,
+   no a los .time-field ni a los .date-field (que tienen su propia presentación). */
+input[readonly]:not(.time-field):not(.date-field) {
   background: rgba(2,8,33,0.5);
   color: var(--accent);
   font-weight: 700;
@@ -1109,7 +1111,8 @@ dialog.time-picker-dialog::backdrop { background: rgba(2,8,33,0.8); backdrop-fil
   border-radius: 12px;
 }
 .cal-filters .cal-f-control,
-.cal-filters input[type="date"] {
+.cal-filters input[type="date"],
+.cal-filters .date-field {
   background: rgba(2,8,33,0.75);
   border: 1px solid rgba(138,212,255,0.22);
   color: #fff;
@@ -1946,12 +1949,14 @@ html[data-theme="light"] body {
 }
 [data-theme="light"] .cal-filters .cal-f-control,
 [data-theme="light"] .cal-filters input[type="date"],
+[data-theme="light"] .cal-filters .date-field,
 [data-theme="light"] .filter-bar select,
 [data-theme="light"] .filter-bar input {
   background: var(--m-surface);
   border-color: var(--m-border);
   color: var(--m-text);
 }
+[data-theme="light"] .cal-filters .date-field::placeholder { color: #94a3b8; }
 [data-theme="light"] .cal-date { color: var(--m-muted); }
 
 /* Botones ghost genéricos */
@@ -2280,62 +2285,100 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 320px;
+  max-height: 360px;
   overflow-y: auto;
 }
-.planner-item {
-  display: flex;
+
+/* Planner item: grid [check] [texto] [acciones] en una sola fila */
+.planner-dialog .planner-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 12px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
+  border-left: 3px solid transparent;
   border-radius: 10px;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+  color: var(--text);
+  margin: 0;
+  font-size: 0.95rem;
 }
-.planner-item:hover { background: rgba(61,139,255,0.08); }
-.planner-item label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
+.planner-dialog .planner-item:hover {
+  background: rgba(61,139,255,0.08);
+  border-left-color: var(--blue-400);
 }
-.planner-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+.planner-dialog .planner-item.done {
+  border-left-color: var(--ok);
+}
+
+.planner-check {
+  width: 20px;
+  height: 20px;
   accent-color: var(--blue-400);
   cursor: pointer;
+  margin: 0;
   flex-shrink: 0;
 }
-.planner-item .planner-text {
-  flex: 1;
+.planner-dialog .planner-text {
   color: var(--text);
   word-break: break-word;
   user-select: text;
+  text-align: left;
+  line-height: 1.3;
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  min-width: 0;
 }
 .planner-item.done .planner-text {
   text-decoration: line-through;
   opacity: 0.55;
 }
-.planner-item .planner-del {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--danger);
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-weight: 700;
-  line-height: 1;
+
+.planner-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
   flex-shrink: 0;
 }
-.planner-item .planner-del:hover {
+.planner-register,
+.planner-del {
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.planner-register {
+  color: var(--blue-400);
+  border-color: rgba(61,139,255,0.3);
+}
+.planner-register:hover {
+  background: rgba(61,139,255,0.15);
+  border-color: var(--blue-400);
+}
+.planner-del {
+  color: var(--danger);
+  padding: 6px 10px;
+  font-size: 1rem;
+}
+.planner-del:hover {
   background: rgba(255,107,107,0.15);
   border-color: rgba(255,107,107,0.4);
 }
+
 .planner-edit-input {
-  flex: 1;
   background: var(--input-bg);
   border: 1px solid var(--blue-400);
   color: var(--input-text);
@@ -2343,6 +2386,8 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
 }
 .planner-empty {
   text-align: center;
@@ -2351,17 +2396,34 @@ dialog.planner-dialog h3 { margin: 0 0 14px; }
   font-style: italic;
 }
 
-/* Tema claro override: superficie blanca en items */
+/* Mobile: acciones se van a una segunda fila debajo del texto */
+@media (max-width: 480px) {
+  .planner-dialog .planner-item {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    row-gap: 8px;
+  }
+  .planner-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+/* Tema claro override */
 [data-theme="light"] .planner-add input,
-[data-theme="light"] .planner-item,
+[data-theme="light"] .planner-dialog .planner-item,
 [data-theme="light"] .planner-edit-input {
   background: var(--m-surface);
   border-color: var(--m-border);
   color: var(--m-text);
 }
-[data-theme="light"] .planner-item:hover { background: var(--m-primary-soft); }
-[data-theme="light"] .planner-item .planner-text { color: var(--m-text); }
+[data-theme="light"] .planner-dialog .planner-item:hover { background: var(--m-primary-soft); border-left-color: var(--m-primary); }
+[data-theme="light"] .planner-dialog .planner-item.done { border-left-color: var(--m-ok); }
+[data-theme="light"] .planner-dialog .planner-text { color: var(--m-text); }
 [data-theme="light"] .planner-empty { color: var(--m-muted); }
+[data-theme="light"] .planner-register { color: var(--m-primary); border-color: rgba(30,107,214,0.3); }
+[data-theme="light"] .planner-register:hover { background: var(--m-primary-soft); border-color: var(--m-primary); }
+[data-theme="light"] .planner-del { color: var(--m-danger); }
 
 /* =====================================================
    Date picker (modal calendario)

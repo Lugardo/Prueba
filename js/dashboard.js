@@ -319,11 +319,12 @@
       emptyEl.hidden = true;
       listEl.innerHTML = items.map(it => `
         <li class="planner-item ${it.done ? "done" : ""}" data-id="${it.id}">
-          <label>
-            <input type="checkbox" ${it.done ? "checked" : ""} data-toggle="${it.id}" />
-            <span class="planner-text" data-edit="${it.id}">${escapeHtml(it.text)}</span>
-          </label>
-          <button type="button" class="planner-del" data-del="${it.id}" aria-label="Borrar">✕</button>
+          <input type="checkbox" class="planner-check" ${it.done ? "checked" : ""} data-toggle="${it.id}" aria-label="Marcar como hecho" />
+          <span class="planner-text" data-edit="${it.id}" title="Doble clic para editar">${escapeHtml(it.text)}</span>
+          <div class="planner-actions">
+            <button type="button" class="planner-register" data-to-task="${it.id}" title="Pasar a reporte de tarea">📋 Registrar</button>
+            <button type="button" class="planner-del" data-del="${it.id}" aria-label="Borrar" title="Eliminar">✕</button>
+          </div>
         </li>
       `).join("");
       wireItems();
@@ -346,6 +347,25 @@
       );
       listEl.querySelectorAll("[data-edit]").forEach(sp =>
         sp.addEventListener("dblclick", () => startInlineEdit(sp))
+      );
+      listEl.querySelectorAll("[data-to-task]").forEach(b =>
+        b.addEventListener("click", () => {
+          const item = b.closest(".planner-item");
+          const text = item.querySelector(".planner-text").textContent;
+          const nameInput = document.querySelector('#task-form input[name="name"]');
+          if (nameInput) {
+            nameInput.value = text;
+            nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+          dlg.close(); dlg.remove();
+          setTimeout(() => {
+            const startInput = document.getElementById("start-input");
+            if (startInput) {
+              startInput.scrollIntoView({ behavior: "smooth", block: "center" });
+              startInput.focus();
+            }
+          }, 200);
+        })
       );
     }
 
